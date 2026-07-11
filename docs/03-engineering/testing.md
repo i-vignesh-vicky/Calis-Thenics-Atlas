@@ -750,35 +750,5 @@ Test behavior, not implementation.
 
 A well-tested system enables confident change.
 
-Confidence—not coverage—is the ultimate measure of testing quality.
-````
+Confidence-not coverage-is the ultimate measure of testing quality.
 
----
-
-# Technical Architect Notes
-
-There are two additional testing practices I'd like Atlas to adopt once the project grows:
-
-### 1. Architecture Tests
-
-Automatically verify architectural rules, such as:
-
-* Domain must not reference Infrastructure.
-* Application must not reference Presentation.
-* No circular dependencies.
-* Modules remain isolated.
-
-This helps preserve Clean Architecture over time.
-
-### 2. Fitness Scenario Tests
-
-Given Atlas's domain, we should create high-level scenario tests that model realistic user journeys, for example:
-
-* Beginner unlocks first pull-up over 12 weeks.
-* User returns after a 3-month break.
-* Injured athlete resumes training.
-* Recovery-driven deload week.
-
-These aren't just software tests—they validate that our product behaves sensibly from a fitness perspective.
-
----

@@ -802,16 +802,4 @@ Before exposing a new endpoint, ask:
 
 If any answer is "no", revisit the design.
 
----
 
-# Technical Architect Notes
-
-An API is not just a transport layer—it is a **contract**. Every poorly designed endpoint becomes technical debt that affects every client application.
-
-As we build this platform, our APIs should tell the story of the business. When someone reads `POST /workouts/{id}/complete`, they immediately understand the intent. They don't need to know how the database is structured.
-
-One final principle I want us to adopt for this project:
-
-> **Optimize APIs for the domain, not for today's UI.**
-
-Screens will change. Mobile apps will evolve. AI services will be added. But a well-designed domain API can serve all of them for years without major redesign. This mindset will give your platform the flexibility it needs to grow from an MVP into the intelligent fitness ecosystem you've envisioned.

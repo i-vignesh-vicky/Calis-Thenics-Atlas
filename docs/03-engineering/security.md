@@ -627,18 +627,4 @@ Before releasing a feature:
 Users trust Atlas with their fitness journey.
 
 Protecting that trust is as important as protecting their data.
-```
 
----
-
-# Technical Architect Review
-
-This is a solid foundation, but there are a few enhancements I'd make as Atlas matures:
-
-* **Threat Modeling:** Conduct lightweight threat modeling for major features (authentication, AI, community, payments).
-* **OWASP ASVS Alignment:** Gradually align security practices with the OWASP Application Security Verification Standard.
-* **Automated Security Scans:** Integrate dependency scanning, secret scanning, and static application security testing (SAST) into CI/CD.
-* **API Abuse Protection:** Add bot detection and adaptive rate limiting as public usage grows.
-* **Data Classification:** Categorize data (public, internal, confidential, sensitive) to guide handling and storage decisions.
-
----

@@ -843,34 +843,8 @@ A feature is complete only when:
 
 # Guiding Principle
 
-Write code that your future self—and every future teammate—will thank you for.
+Write code that your future self and every future teammate will thank you for.
 
 Atlas is intended to last for years.
 
 Its code should reflect that ambition.
-````
-
----
-
-# Technical Architect Review
-
-This is an excellent baseline, but I want to strengthen it further for Atlas.
-
-As our codebase grows, I would add dedicated sections for:
-
-* **Entity Framework Core Best Practices** (tracking, migrations, LINQ, performance)
-* **Vertical Slice Architecture conventions**
-* **MediatR usage guidelines**
-* **FluentValidation conventions**
-* **Caching strategy (Redis)**
-* **Event publishing patterns**
-* **Background jobs**
-* **File organization examples**
-* **Git branching and commit message conventions**
-* **Pull Request template**
-* **Performance budgets**
-* **AI-assisted development workflow**
-
-These don't need to be in the first version, but they'll become valuable as the engineering team grows.
-
----

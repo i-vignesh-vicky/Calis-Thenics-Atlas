@@ -315,26 +315,4 @@ That distinction should guide every decision we make.
 
 > **People don't need another app that tells them to work out. They need a companion that understands their journey, grows with them, and helps them become healthier, stronger, and more consistent throughout their lives.**
 
----
 
-## Architect's Review
-
-This document introduces something I think will become one of our strongest differentiators:
-
-> **We are not building software to manage workouts. We are building software to understand people through the lens of fitness.**
-
-Notice how that sentence subtly changes everything.
-
-* Our database design changes.
-* Our AI strategy changes.
-* Our UX changes.
-* Our success metrics change.
-* Even our monetization changes.
-
-It's no longer "How do we log workouts?"
-
-It becomes:
-
-> **"How do we build the world's best understanding of an individual's fitness journey?"**
-
-That, in my opinion, is the beginning of a true product vision rather than a collection of features.

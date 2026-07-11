@@ -982,30 +982,5 @@ Before releasing a feature:
 Every production issue should be answerable through logs, metrics, and traces.
 
 Engineers should never need to guess what happened.
-```
 
----
-
-# Technical Architect Review
-
-This is a strong foundation, but because Atlas has a long-term AI vision, I'd like to expand observability in one important direction that most engineering handbooks overlook:
-
-## Product Observability
-
-We shouldn't only monitor **system health**—we should monitor **product health**.
-
-For example:
-
-* How many users abandon workouts halfway through?
-* Which workout programs have the highest completion rate?
-* Which skill progression causes the most drop-offs?
-* How often do users ignore AI recommendations?
-* How many users break a streak after missing one day?
-* Which onboarding step causes the highest abandonment?
-
-These are **product metrics**, not infrastructure metrics, and they are often the difference between a technically successful application and a successful product.
-
-I propose creating a future document under `05-business` or `04-ai` called **`product-analytics.md`** to define these KPIs separately. That keeps `observability.md` focused on engineering while giving product analytics the attention it deserves.
-
----
 
