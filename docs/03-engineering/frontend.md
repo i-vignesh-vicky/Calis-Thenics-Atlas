@@ -1,503 +1,502 @@
-Excellent. The next document is one of the most important engineering documents in the entire repository.
-
-If **architecture.md** defines *what* we're building, this document defines *how* every engineer must think while building it.
-
-This document will influence thousands of future commits.
-
----
-
-# `03-engineering/frontend.md`
-
 # Frontend Architecture
 
-> **Purpose**
->
-> This document defines the frontend architecture, design principles, state management philosophy, module organization, and development guidelines for the mobile application.
->
-> The frontend should deliver a world-class user experience while remaining scalable, maintainable, and capable of supporting years of product evolution.
+## Purpose
+
+This document defines the frontend architecture, design principles, state management philosophy, module organization, and development guidelines for the mobile application.
+
+The frontend must deliver a world-class user experience while remaining scalable, maintainable, and extensible for years of product evolution.
 
 ---
 
-# 1. Frontend Vision
+## Design Philosophy
 
-The frontend is **not just a collection of screens**.
+The frontend is where users experience the product. Every interaction should reinforce the core mission: **helping people become healthier through consistency, discipline, and meaningful progress.**
 
-It is where users experience the product.
+### Core Principles
 
-Every interaction should reinforce our mission:
+The frontend prioritizes:
 
-> **Help people become healthier through consistency, discipline, and meaningful progress.**
+1. **Simplicity** — Remove unnecessary complexity
+2. **Speed** — Responsive interactions and fast loading
+3. **Clarity** — Obvious intent and direction
+4. **Consistency** — Unified design language and behavior
+5. **Accessibility** — Usable by everyone
+6. **Delight** — Thoughtful details that enhance experience
+7. **Predictability** — Behavior matches user expectations
 
-The UI should never overwhelm users with unnecessary complexity.
-
-Instead, it should make difficult things feel simple.
-
----
-
-# 2. Design Philosophy
-
-The frontend should prioritize:
-
-* Simplicity
-* Speed
-* Clarity
-* Consistency
-* Accessibility
-* Delight
-* Predictability
-
-The best interface is one that disappears, allowing users to focus on their fitness rather than learning the application.
+The best interface disappears, allowing users to focus on their fitness journey rather than learning the application.
 
 ---
 
-# 3. User Experience Principles
+## User Experience Principles
 
-Every screen should answer one question:
+### Question Every Screen Answers
 
-> **What is the user trying to accomplish right now?**
+Every screen must answer: **"What is the user trying to accomplish right now?"**
 
-Not:
-
-> What data do we have?
+Not: "What data do we have?"
 
 The UI exists to help users complete tasks, not to expose database records.
 
----
+### Mobile-First Design
 
-# 4. Mobile-First Thinking
+The MVP targets mobile users. Optimize for:
 
-The MVP targets mobile users.
-
-Everything should be optimized for:
-
-* One-handed usage
-* Fast interactions
-* Short attention spans
-* Offline interruptions
-* Small screens
+- One-handed usage
+- Fast interactions
+- Short attention spans
+- Network interruptions
+- Small screens
 
 Desktop experiences can evolve later.
 
----
-
-# 5. Frontend Responsibilities
+### Frontend Responsibilities
 
 The frontend is responsible for:
+- ✓ Presenting information clearly
+- ✓ Capturing user interactions
+- ✓ Managing local UI state
+- ✓ Input validation and feedback
+- ✓ Offline support and sync
+- ✓ Smooth animations and transitions
+- ✓ Navigation and routing
+- ✓ Accessibility compliance
 
-* Presenting information
-* User interactions
-* Local state
-* Input validation
-* Offline support
-* Smooth animations
-* Navigation
-* Accessibility
-
-The frontend is **not** responsible for business decisions.
-
-Those belong to the backend.
+The frontend is **NOT** responsible for:
+- ✗ Business rule enforcement (backend's responsibility)
+- ✗ Complex calculations (backend's responsibility)
+- ✗ Data transformation for business logic (backend's responsibility)
 
 ---
 
-# 6. Feature-Based Organization
+## Architecture & Organization
 
-The application should be organized by features rather than by technical type.
+### Project Structure
 
-Example:
+Organize by **feature first**, then by **technical concern**:
 
-```text
+```
 features/
-
-    authentication/
-
-    home/
-
-    workouts/
-
-    routines/
-
-    skills/
-
-    progress/
-
-    timeline/
-
-    community/
-
-    profile/
+  authentication/
+    screens/
+    components/
+    services/
+    state/
+    tests/
+    
+  home/
+  workouts/
+  routines/
+  programs/
+  exercises/
+  skills/
+  progress/
+  timeline/
+  community/
+  profile/
 
 shared/
+  components/
+  services/
+  utilities/
 
 core/
+  theme/
+  constants/
+  styles/
 
 design-system/
+  buttons/
+  cards/
+  inputs/
+  lists/
+  dialogs/
+  typography/
 ```
 
 Each feature owns:
+- Screens and pages
+- Feature-specific components
+- Local state management
+- Feature services
+- Feature tests
 
-* Screens
-* Components
-* State
-* Services
-* Tests
+### Component Hierarchy
 
-This improves scalability and discoverability.
+Build UIs using reusable, hierarchical layers:
 
----
-
-# 7. Component Hierarchy
-
-The UI should be built using reusable layers.
-
-```text
+```
 Screen
-
-↓
-
-Section
-
-↓
-
-Component
-
-↓
-
-Primitive UI Element
+  ↓
+Feature Section
+  ↓
+Reusable Component
+  ↓
+Design System Primitive
 ```
 
 Example:
-
-```text
+```
 Workout Screen
-
-↓
-
-Exercise List
-
-↓
-
+  ↓
+Exercise List Section
+  ↓
 Exercise Card
-
-↓
-
-Button
+  ↓
+Button + Text (Design System)
 ```
 
-Avoid creating large, monolithic screens.
+Avoid monolithic screens. Decompose into focused components.
 
 ---
 
-# 8. State Management Philosophy
+## State Management
 
-Different types of state should have different homes.
+Different types of state belong in different places:
 
-### Local UI State
+### 1. Local UI State
 
-Examples:
+**What:** Dialog open/closed, selected tab, input field value, form state
 
-* Dialog open
-* Selected tab
-* Input values
+**Where:** Inside the specific screen/component
 
-Lives inside the screen.
+**Lifespan:** Duration of screen visibility
 
----
+**Example:**
+```dart
+bool _isDialogOpen = false;
+String _selectedTab = "overview";
+```
 
-### Shared Application State
+### 2. Shared Application State
 
-Examples:
+**What:** Logged-in user, theme preference, authentication tokens, app-wide settings
 
-* Logged-in user
-* Theme
-* Authentication
-* Cached workouts
+**Where:** Global state container (Provider, BLoC, Riverpod, etc.)
 
-Lives in global state.
+**Lifespan:** Application session
 
----
+**Example:**
+```dart
+class AppState {
+  User currentUser;
+  Theme theme;
+  String authToken;
+}
+```
 
-### Server State
+### 3. Server State (Remote Data)
 
-Examples:
+**What:** Workout history, programs, statistics, community feed, user data
 
-* Workout history
-* Programs
-* Statistics
-* Community feed
+**Where:** Backend as source of truth, cached locally for offline support
 
-Should be synchronized with the backend rather than treated as permanent frontend state.
+**Lifespan:** Until invalidated or refreshed
 
----
+**Strategy:**
+- Keep backend as source of truth
+- Cache locally for offline access
+- Sync changes automatically when online
+- Show optimistic updates while syncing
 
-# 9. Navigation
+**Example:**
+```dart
+// Cache locally
+List<Workout> _cachedWorkouts;
 
-Navigation should reflect user goals.
-
-Primary navigation:
-
-* Home
-* Workouts
-* Community
-* Progress
-* Profile
-
-Avoid deep navigation trees.
-
-Users should reach any major feature within two or three taps.
-
----
-
-# 10. Offline Strategy
-
-The application should continue working during temporary network loss.
-
-Offline support includes:
-
-* Viewing routines
-* Logging workouts
-* Viewing recent progress
-* Drafting community posts
-
-Changes should synchronize automatically when connectivity returns.
+// Sync with backend
+Future<void> syncWorkouts() async {
+  final remoteWorkouts = await api.fetchWorkouts();
+  _cachedWorkouts = remoteWorkouts;
+  await _saveToLocalDatabase();
+}
+```
 
 ---
 
-# 11. Performance Principles
+## Navigation
 
-Performance is a feature.
+Navigation should reflect user mental models and goals.
 
-The app should feel:
+### Primary Navigation (Bottom Tabs)
 
-* Fast
-* Responsive
-* Smooth
+- **Home** — Dashboard and quick access
+- **Workouts** — Log and view workouts
+- **Community** — Social features and feed
+- **Progress** — Statistics and achievements
+- **Profile** — User settings and preferences
 
-Targets:
+### Navigation Guidelines
 
-* Fast startup
-* Smooth scrolling
-* Minimal loading states
-* Efficient rendering
-
-Users should rarely notice the application waiting.
-
----
-
-# 12. Error Handling
-
-Errors should be:
-
-* Friendly
-* Actionable
-* Non-technical
-
-Bad:
-
-> Error 500
-
-Better:
-
-> We couldn't save your workout. Your progress is safe and we'll retry automatically.
-
-The goal is to maintain user trust.
+- Limit navigation depth to 2-3 taps for major features
+- Use clear back navigation
+- Preserve scroll position when returning
+- Show badges for unread/urgent items
+- Avoid ambiguous navigation states
 
 ---
 
-# 13. Loading States
+## Offline Support
 
-Never leave users wondering.
+The application should remain functional during temporary network loss.
 
-Use:
+### What Works Offline
 
-* Skeleton screens
-* Progress indicators
-* Optimistic updates
-* Incremental loading
+- ✓ View saved routines and programs
+- ✓ Log workouts
+- ✓ View recent progress and statistics
+- ✓ Read cached community content
+- ✓ Compose posts (synced when online)
+- ✓ Access settings
+
+### Offline Behavior
+
+- Show offline indicator when disconnected
+- Queue changes locally
+- Auto-sync when connectivity returns
+- Resolve conflicts transparently
+- Preserve user effort across network failures
+
+---
+
+## Performance
+
+Performance is a feature, not an afterthought.
+
+### Targets
+
+- **App startup:** < 2 seconds
+- **Screen transitions:** Instant
+- **List scrolling:** 60 FPS
+- **Loading indicators:** Visible within 100ms of action
+
+### Strategies
+
+- Lazy load screens and content
+- Use skeleton screens for placeholders
+- Implement efficient rendering (avoid unnecessary rebuilds)
+- Optimize images and media
+- Minimize bundle size
+- Cache aggressively
+
+Users should rarely feel the app waiting.
+
+---
+
+## Error Handling
+
+Errors should be friendly, actionable, and non-technical.
+
+### Bad Error Messages
+```
+❌ "Error 500: Internal Server Error"
+❌ "NetworkException: timeout_exception"
+❌ "NullPointerException"
+```
+
+### Good Error Messages
+```
+✓ "We couldn't save your workout. 
+   Your progress is safe and we'll retry automatically."
+
+✓ "No internet connection. 
+   You can still log workouts offline."
+
+✓ "That program is no longer available. 
+   Check out our recommended alternatives."
+```
+
+The goal is to maintain user trust and guide recovery.
+
+---
+
+## Loading & Empty States
+
+### Loading States
+
+Never leave users wondering. Use:
+
+- **Skeleton screens** — Show content layout while loading
+- **Progress indicators** — Animated loaders for indeterminate progress
+- **Optimistic updates** — Update UI immediately, sync in background
+- **Incremental loading** — Show data as it arrives
 
 Avoid blank screens whenever possible.
 
+### Empty States
+
+Empty screens educate and encourage. They're opportunities to guide users.
+
+**Bad:**
+```
+No workouts yet.
+```
+
+**Good:**
+```
+🏋️ Your journey starts here
+
+Create your first workout and begin tracking 
+your progress toward your fitness goals.
+
+[Create Workout] button
+```
+
 ---
 
-# 14. Forms
+## Forms & Input
 
-Forms should minimize effort.
+Forms should minimize user effort:
 
-Principles:
-
-* Few required fields
-* Smart defaults
-* Auto-save where appropriate
-* Immediate validation
-* Helpful error messages
+- Few required fields
+- Smart defaults (remember previous selections)
+- Auto-save where appropriate
+- Real-time validation with helpful errors
+- Keyboard optimization (numeric keyboards for numbers, etc.)
+- Auto-fill support
 
 Logging a workout should feel effortless.
 
 ---
 
-# 15. Visual Consistency
+## Visual Design
 
-The application should use a unified design system.
+### Design System
 
-Consistent:
+Centralize all visual primitives:
 
-* Colors
-* Typography
-* Icons
-* Spacing
-* Elevation
-* Animations
+- Colors and palette
+- Typography (font sizes, weights, line heights)
+- Icons (consistent style and sizing)
+- Spacing and layout grid
+- Shadows and elevation
+- Border radius and shape
+- Animations and transitions
+
+No feature should invent its own visual language.
+
+### Visual Consistency
+
+Maintains:
+- Color usage (primary, secondary, success, warning, error)
+- Icon library and sizing
+- Button styles and states
+- Card and container styling
+- Typography hierarchy
+- Spacing consistency
 
 Consistency builds familiarity and trust.
 
 ---
 
-# 16. Accessibility
+## Accessibility
 
-The application should be usable by everyone.
+The application must be usable by everyone.
 
-Support:
+### Support Required
 
-* Screen readers
-* Dynamic text sizes
-* High contrast
-* Touch targets
-* Keyboard navigation (where applicable)
+- ✓ Screen reader compatibility
+- ✓ Sufficient color contrast
+- ✓ Adjustable text sizes
+- ✓ Large touch targets (min 48x48 dp)
+- ✓ Meaningful focus indicators
+- ✓ Keyboard navigation
+- ✓ Captions for videos (future)
 
-Accessibility should be considered from day one.
-
----
-
-# 17. Animations
-
-Animations should communicate, not distract.
-
-Use animation to:
-
-* Show transitions
-* Confirm actions
-* Highlight achievements
-* Reinforce interactions
-
-Avoid excessive motion that slows the experience.
+Accessibility should be considered from day one, not added later.
 
 ---
 
-# 18. Design System
+## Animations & Transitions
 
-A centralized design system should provide:
+Animations communicate and delight, not distract.
 
-* Buttons
-* Cards
-* Inputs
-* Lists
-* Dialogs
-* Typography
-* Colors
-* Icons
-* Layout primitives
+### Use Animations For
 
-No feature should invent its own visual language.
+- ✓ Showing transitions between screens
+- ✓ Confirming successful actions
+- ✓ Highlighting achievements ("Skill Unlocked!")
+- ✓ Reinforcing interactions (button press, pull-to-refresh)
+- ✓ Guiding attention to important changes
 
----
+### Avoid
 
-# 19. Reusability
+- ✗ Excessive motion that slows interaction
+- ✗ Animations that don't serve a purpose
+- ✗ Long delays for animations
+- ✗ Animations that conflict with user actions
 
-Before creating a new component, ask:
-
-* Can an existing component solve this?
-* Can the current component be extended?
-* Does this belong in the design system?
-
-Favor composition over duplication.
+Animation should enhance, never obstruct.
 
 ---
 
-# 20. User Feedback
+## User Feedback
 
-Every meaningful action should provide feedback.
+Every meaningful action should provide clear feedback:
 
-Examples:
-
-* Workout saved
-* Skill unlocked
-* Streak continued
-* Challenge joined
+- ✓ Workout saved
+- ✓ Skill unlocked
+- ✓ Streak continued
+- ✓ Challenge joined
+- ✓ Post published
 
 The user should never wonder whether an action succeeded.
 
 ---
 
-# 21. Empty States
-
-Empty screens should educate and encourage.
-
-Instead of:
-
-> No workouts.
-
-Use:
-
-> Your journey starts here. Create your first workout and begin tracking your progress.
-
-Every empty state is an opportunity to guide users.
-
----
-
-# 22. Future Scalability
-
-The frontend should be prepared for future additions such as:
-
-* AI Coach
-* Recovery Dashboard
-* Nutrition Tracking
-* Wearable Integrations
-* Live Coaching
-* Competitions
-* Local Communities
-
-These should integrate naturally without requiring a redesign of the application's foundations.
-
----
-
-# 23. Frontend Principles
-
-Every screen should satisfy these questions:
-
-* Is the primary action obvious?
-* Can a new user understand it quickly?
-* Does it reduce cognitive load?
-* Does it support the user's fitness journey?
-* Is it visually consistent?
-* Is it accessible?
-* Does it feel fast?
-
-If not, refine the design before implementation.
-
----
-
-# 24. Engineering Standards
+## Code Quality & Standards
 
 Frontend code should be:
 
-* Modular
-* Reusable
-* Testable
-* Predictable
-* Well-documented
-* Strongly typed
-* Easy to refactor
+- **Modular** — Features are self-contained
+- **Reusable** — Components solve general problems
+- **Testable** — Easy to verify behavior
+- **Predictable** — Follows established patterns
+- **Well-typed** — Static types catch errors early
+- **Documented** — Non-obvious intent is explained
+- **Refactorable** — Clean architecture enables changes
 
-Favor clear architecture over clever shortcuts.
+Favor clear, simple architecture over clever shortcuts.
 
 ---
 
-# Technical Architect Notes
+## Future Scalability
 
-One principle should guide every frontend decision:
+Design the foundation to accommodate:
+
+- AI Coach (personalized guidance)
+- Recovery Dashboard (sleep, fatigue, readiness)
+- Nutrition Tracking (complementary feature)
+- Wearable Integration (Apple Watch, Fitbit, etc.)
+- Live Coaching (real-time video sessions)
+- Competitions & Leaderboards (social motivation)
+- Local Communities (geographic connections)
+
+These should integrate naturally without requiring app redesign.
+
+---
+
+## Design Principles
+
+Before shipping any screen, answer these questions:
+
+- ✓ Is the primary action obvious?
+- ✓ Can a new user understand it quickly?
+- ✓ Does it reduce cognitive load?
+- ✓ Does it support the user's fitness journey?
+- ✓ Is it visually consistent with the design system?
+- ✓ Is it accessible?
+- ✓ Does it feel fast and responsive?
+
+If not, refine before implementation.
+
+---
+
+## The Guiding North Star
 
 > **The interface should disappear, leaving only the user's journey.**
 
-People are not opening your app because they love apps. They're opening it because they want to become stronger, healthier, and more consistent.
+Users open this app not because they love apps, but because they want to become stronger, healthier, and more consistent. Every design decision should serve that goal.
 
 A beginner should feel welcomed. An advanced athlete should feel empowered. Neither should feel overwhelmed.
 

@@ -1,302 +1,506 @@
-Perfect. This is probably the **most important engineering document** in the entire project.
+# Engineering Standards
 
-If I were joining Atlas as a Senior Staff Engineer, this is the first document I'd read before writing a single line of code.
+> "Code is read far more often than it is written. Every line should optimize for clarity, maintainability, and longevity."
 
----
+## Purpose
 
-# `03-engineering/coding-standards.md`
+This document defines engineering standards for Calis-Thenics-Atlas. These standards ensure the codebase remains maintainable, testable, scalable, and consistent as the project evolves.
 
-````markdown
-# Atlas Engineering Standards
-
-> "Code is read far more often than it is written.
-> Every line of code should optimize for clarity, maintainability, and longevity."
+Every engineer and AI coding assistant is expected to follow these guidelines.
 
 ---
 
-# Purpose
+## Engineering Philosophy
 
-This document defines the engineering standards for Atlas.
+Atlas is built for the next decade, not the next sprint.
 
-These standards ensure that the codebase remains:
+### Priorities (in order)
 
-- Maintainable
-- Testable
-- Scalable
-- Consistent
-- Easy to understand
-- Easy to extend
-
-Every engineer and AI coding assistant contributing to Atlas is expected to follow these guidelines.
+1. **Correctness** over cleverness
+2. **Readability** over brevity
+3. **Simplicity** over unnecessary abstraction
+4. **Maintainability** over premature optimization
+5. **Long-term architecture** over short-term convenience
 
 ---
 
-# Engineering Philosophy
+## Architectural Principles
 
-Atlas is being built for the next decade, not the next sprint.
+### SOLID
 
-We prioritize:
+All application code must follow SOLID principles:
 
-- Correctness over cleverness
-- Readability over brevity
-- Simplicity over unnecessary abstraction
-- Maintainability over premature optimization
-- Long-term architecture over short-term convenience
+- **S**ingle Responsibility — Classes have one reason to change
+- **O**pen/Closed — Open for extension, closed for modification
+- **L**iskov Substitution — Subtypes must be substitutable
+- **I**nterface Segregation — Depend on specific interfaces, not fat ones
+- **D**ependency Inversion — Depend on abstractions, not concretions
 
----
+### Clean Architecture
 
-# Core Principles
-
-## SOLID
-
-All application code should follow SOLID principles.
-
-Especially:
-
-- Single Responsibility Principle
-- Dependency Inversion Principle
-- Open/Closed Principle
-
-Avoid classes with multiple unrelated responsibilities.
-
----
-
-## Clean Architecture
-
-Dependencies always point inward.
+Dependencies always point **inward**:
 
 ```
-Presentation
-
-↓
-
-Application
-
-↓
-
-Domain
-
-↓
-
-Infrastructure
+Presentation Layer
+        ↓
+Application Layer
+        ↓
+Domain Layer
+        ↓
+Infrastructure Layer
 ```
 
-Outer layers may depend on inner layers.
+- Outer layers may depend on inner layers
+- Inner layers **must never** depend on outer layers
+- The domain layer is framework-agnostic
 
-Inner layers must never depend on outer layers.
+### Domain-Driven Design
 
----
+Business logic belongs exclusively in the **Domain Layer**.
 
-## Domain-Driven Design
+- Controllers, APIs, and UI **coordinate** business rules—they don't implement them
+- The domain model represents real fitness concepts (Workout, Exercise, Skill, etc.)
+- Business decisions should be testable without frameworks or databases
 
-Business logic belongs in the Domain layer.
+### Separation of Concerns
 
-Controllers, APIs, and UI should coordinate—not implement—business rules.
+Each architectural layer has one responsibility:
 
-The domain model should represent real-world fitness concepts.
+**Presentation**
+- HTTP request/response handling
+- Authentication and authorization checks
+- Input serialization/deserialization
+- Format translation
 
----
+**Application**
+- Use case orchestration
+- Command and query handling
+- Permission verification
+- Transaction management
+- Event raising
 
-## Separation of Concerns
+**Domain**
+- Business rules and constraints
+- Entity behavior and lifecycle
+- Value object definitions
+- Aggregate design
+- Domain events
 
-Each layer has one responsibility.
-
-Presentation
-
-- HTTP
-- Authentication
-- Serialization
-
-Application
-
-- Use Cases
-- Commands
-- Queries
-
-Domain
-
-- Business Rules
-- Entities
-- Value Objects
-
-Infrastructure
-
-- Database
-- Redis
-- External APIs
-- Email
-- Storage
+**Infrastructure**
+- Database access and persistence
+- External API integration
+- File storage and retrieval
+- Email and notification sending
+- Caching mechanisms
+- Authentication providers
 
 ---
 
-# Folder Organization
+## Code Organization
 
-Organize code by feature first, then by technical concern.
+### By Feature, Then by Concern
 
-Example
+Organize code by **business capability first**, then by technical type:
 
 ```
 Modules/
+  Workouts/
+    Application/
+      Commands/
+      Queries/
+      Handlers/
+    Domain/
+      Workout.cs
+      Exercise.cs
+      Skill.cs
+      WorkoutValidator.cs
+    Infrastructure/
+      WorkoutRepository.cs
+      WorkoutQueries.cs
+    Presentation/
+      WorkoutController.cs
 
-Workout/
-
-Application/
-
-Domain/
-
-Infrastructure/
-
-Presentation/
-
-Program/
-
-Skill/
-
-Community/
+  Programs/
+  Skills/
+  Community/
 ```
 
-Avoid large "Services" folders.
+**Never** create large "Services" or "Utilities" folders.
+
+### Why Feature-Based?
+
+- Features are self-contained and understandable
+- Team members own vertical slices
+- New engineers find code naturally
+- Dependencies between features are explicit
+- Removing features doesn't require hunting for scattered files
 
 ---
 
-# Naming
+## Naming Conventions
 
-Names should describe intent.
+### Classes & Types
 
-Good
+Use **descriptive nouns** that represent concepts:
 
+**Good:**
+```csharp
 WorkoutSession
-
 ProgressCalculator
-
 WorkoutCompletedEvent
+SkillUnlocker
+ConsistencyTracker
+RecoveryEstimator
+```
 
-Bad
-
+**Bad:**
+```csharp
 Manager
-
-Helper
-
+Handler
 Processor
-
 Utility
-
+Service
 Thing
-
 DataHandler
+```
 
----
+Names should answer: "What is this?"
 
-Methods should describe actions.
+### Methods & Functions
 
-Good
+Use **descriptive verbs** that explain what they do:
 
+**Good:**
+```csharp
 CompleteWorkout()
-
-CalculateVolume()
-
+CalculateWorkoutVolume()
 UnlockSkill()
+VerifyMilestoneEligibility()
+EstimateRecoveryTime()
+```
 
-Bad
-
+**Bad:**
+```csharp
 DoStuff()
-
 Handle()
-
 Process()
-
 Execute()
+RunLogic()
+DoThing()
+```
 
----
+Methods should be imperative: "What does this do?"
 
-Variables
+### Variables & Properties
 
-Prefer descriptive names.
+Use **clear, intention-revealing names**:
 
-Good
-
+**Good:**
+```csharp
 completedWorkout
-
 totalVolume
-
 userRecoveryScore
+averageRepsPerSet
+weeklyCosistencyPercentage
+```
 
-Avoid
-
-x
-
+**Bad:**
+```csharp
+x, y, z
 obj
-
 data
-
+temp
 tmp
+val
+info
+```
+
+### Constants & Enums
+
+Use **UPPER_SNAKE_CASE** for constants:
+
+```csharp
+const int MAX_WORKOUT_DURATION_MINUTES = 300;
+const decimal MIN_RECOVERY_SCORE = 0.0m;
+const string DEFAULT_TIMEZONE = "UTC";
+```
 
 ---
 
-# Method Design
+## Method Design
 
-Methods should:
+### Single Responsibility
 
-- Perform one task
-- Have one level of abstraction
-- Be easy to test
+Each method should do **one thing well**.
 
-Aim for methods under 30 lines where practical.
+Ask: "Can I describe this method in one sentence without using 'and'?"
+
+If not, split it.
+
+### Size
+
+Aim for methods under 30 lines.
+
+- Longer methods are harder to understand
+- Longer methods are harder to test
+- Longer methods often have hidden responsibilities
+
+**Exceptions:** Builders and fluent APIs may be longer.
+
+### Level of Abstraction
+
+Statements in a method should be at the same level of abstraction.
+
+**Bad** (mixed levels):
+```csharp
+public void ProcessWorkout(Workout workout)
+{
+    // High level
+    var isValid = ValidateWorkout(workout);
+    
+    // Too low level
+    if (workout.ExerciseIds.Count == 0) { ... }
+    
+    // High level
+    SaveWorkout(workout);
+}
+```
+
+**Good:**
+```csharp
+public void ProcessWorkout(Workout workout)
+{
+    ValidateWorkout(workout);
+    SaveWorkout(workout);
+    RaiseWorkoutCompletedEvent(workout);
+}
+```
+
+### Testability
+
+Methods should be testable in isolation:
+
+- Avoid hard dependencies on databases or external services
+- Use dependency injection
+- Return values rather than side effects
+- Keep logic pure where possible
 
 ---
 
-# Class Design
+## Class Design
 
-Classes should represent one concept.
+### Single Responsibility
 
-Large classes usually indicate multiple responsibilities.
+A class should have **one reason to change**.
+
+If you're describing a class and use "and", it probably has multiple responsibilities.
+
+**Bad:**
+```csharp
+public class WorkoutManager
+{
+    public void CreateWorkout() { }
+    public void LogWorkout() { }
+    public void CalculateStats() { }
+    public void SaveToDatabase() { }
+    public void SendEmail() { }
+}
+```
+
+**Good:**
+```csharp
+public class WorkoutService
+{
+    public Workout Create(CreateWorkoutCommand command) { }
+    public void Complete(CompleteWorkoutCommand command) { }
+}
+
+public class WorkoutStatisticsCalculator
+{
+    public WorkoutStats Calculate(Workout workout) { }
+}
+
+public class WorkoutRepository
+{
+    public void Save(Workout workout) { }
+}
+```
+
+### Cohesion
+
+Related data and behavior should be in the same class.
+
+Avoid classes that are just bags of static utility methods.
+
+### Immutability Where Possible
+
+Value objects should be immutable:
+
+```csharp
+public record ExerciseSet(int Reps, decimal WeightKg, int DurationSeconds);
+```
+
+Entities can be mutable but should protect their invariants:
+
+```csharp
+public class Workout
+{
+    private List<Exercise> _exercises = new();
+    
+    public IReadOnlyList<Exercise> Exercises => _exercises.AsReadOnly();
+    
+    public void AddExercise(Exercise exercise)
+    {
+        if (_exercises.Count >= MAX_EXERCISES)
+            throw new InvalidOperationException("Too many exercises");
+        _exercises.Add(exercise);
+    }
+}
+```
 
 ---
 
-# Dependency Injection
+## Dependency Injection
 
-Always depend on abstractions.
+**Always depend on abstractions**, not concrete implementations.
 
-Avoid:
-
+**Bad:**
+```csharp
+public class WorkoutService
+{
+    private readonly PostgreSqlWorkoutRepository _repository = 
+        new PostgreSqlWorkoutRepository();
+}
 ```
-new PostgreSqlRepository()
+
+**Good:**
+```csharp
+public class WorkoutService
+{
+    private readonly IWorkoutRepository _repository;
+    
+    public WorkoutService(IWorkoutRepository repository)
+    {
+        _repository = repository;
+    }
+}
 ```
 
-Prefer constructor injection.
+Benefits:
+- Easy to test (inject test doubles)
+- Easy to swap implementations
+- Loose coupling
+- Composition root handles wiring
 
 ---
 
-# Business Logic
+## Business Logic Location
 
-Business rules belong in the Domain.
+**Business rules belong exclusively in the Domain layer.**
 
-Never implement business logic in:
+### Never put business logic in:
 
-- Controllers
-- Flutter Widgets
-- API Filters
-- Database Stored Procedures
+- ✗ Controllers or API endpoints
+- ✗ Flutter widgets or UI code
+- ✗ API filters or middleware
+- ✗ Database stored procedures
+- ✗ Background jobs (they orchestrate, domain rules run in domain)
+
+### Always put business logic in:
+
+- ✓ Domain entities
+- ✓ Domain services
+- ✓ Value objects
+- ✓ Business rule classes
 
 ---
 
-# Entities
+## Entity Design
 
-Entities should protect their own invariants.
+### Entities Should Enforce Invariants
 
-Bad
+Entities protect their own business rules. Don't let callers break invariants.
 
+**Bad:**
+```csharp
+workout.Status = WorkoutStatus.Completed;
 ```
-workout.Status = Completed;
-```
 
-Good
+An invalid status might be set. No validation. No side effects.
 
-```
+**Good:**
+```csharp
 workout.Complete();
 ```
 
-The entity decides whether completion is valid.
+The entity decides:
+- Can the workout be completed?
+- What should happen when it completes?
+- What events should be raised?
+
+### Behavior vs. Data
+
+Entities should expose **behavior**, not just data:
+
+**Bad:**
+```csharp
+public class Workout
+{
+    public int TotalVolume { get; set; }
+    public bool IsMilestoneReached { get; set; }
+}
+
+// Callers calculate
+if (workout.TotalVolume > 5000)
+    workout.IsMilestoneReached = true;
+```
+
+**Good:**
+```csharp
+public class Workout
+{
+    public void CompleteExercise(Exercise exercise)
+    {
+        _exercises.Add(exercise);
+        
+        if (CalculateVolume() > 5000)
+            RaiseMilestoneReachedEvent();
+    }
+    
+    public int GetTotalVolume() => ...;
+}
+```
+
+---
+
+## Code Quality Standards
+
+Every contribution should satisfy:
+
+1. **Readable** — Clear to others on first reading
+2. **Testable** — Can be unit tested
+3. **Maintainable** — Easy to change
+4. **Consistent** — Follows established patterns
+5. **Performant** — No obvious inefficiencies
+6. **Documented** — Non-obvious intent is explained
+7. **Safe** — Null-safe, boundary-safe, exception-safe
+
+---
+
+## Refactoring
+
+Refactoring is ongoing, not occasional.
+
+- Small refactorings keep code quality high
+- Regular refactoring prevents design erosion
+- Refactoring is safer than large rewrites
+- Tests protect refactoring
+
+Bad habits that necessitate large refactorings:
+- Ignoring SOLID violations
+- Accumulating "just for now" hacks
+- Allowing dead code to remain
+- Not questioning design decisions
 
 ---
 

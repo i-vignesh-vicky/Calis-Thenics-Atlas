@@ -1,688 +1,578 @@
-Perfect. This is the document I was looking forward to the most.
-
-For **your product**, I honestly think this will become **the single most valuable engineering document**.
-
-Why?
-
-Because your long-term vision is AI.
-
-AI is data.
-
-Data is database design.
-
-A poorly designed database will permanently limit what your AI can learn in 5 years.
-
-A well-designed database becomes your biggest competitive advantage.
-
-This document will therefore be much deeper than a normal "tables and indexes" document.
-
----
-
-# `03-engineering/database.md`
-
 # Database Design Guidelines
 
-> **Purpose**
->
-> This document defines the database philosophy, modeling principles, conventions, and scalability guidelines for the platform.
->
-> The database is more than persistent storage—it is the historical memory of every user's fitness journey.
->
-> Every schema decision should preserve long-term analytical value and support future AI capabilities.
+## Purpose
+
+This document defines the database philosophy, modeling principles, conventions, and scalability strategy for Calis-Thenics-Atlas.
+
+The database is not just persistent storage—it is the historical memory of every user's fitness journey. Every schema decision should preserve long-term analytical value and enable future AI capabilities.
+
+**Core Belief:** Data is a competitive advantage. The database we build today enables the AI coach of tomorrow.
 
 ---
 
-# 1. Database Philosophy
+## Philosophy
 
-Most applications store data.
+### Data vs. Storage
 
-Our platform stores **fitness history**.
+Most applications store data. Calis-Thenics-Atlas **preserves fitness history**.
 
-There is a difference.
+A workout logged today should still provide value ten years later. Every record should answer one of three questions:
 
-A workout logged today should still provide value ten years later.
+1. **What happened?** (Facts)
+2. **Why did it happen?** (Context)
+3. **How can this help the user improve?** (Actionability)
 
-Every record should answer one of three questions:
+If data cannot contribute to one of these goals, question whether it belongs in the system.
 
-* What happened?
-* Why did it happen?
-* How can this help the user improve?
+### Core Principles
 
-If a piece of data cannot contribute to one of these goals, question whether it belongs in the system.
+1. **Data Integrity** — Correctness is non-negotiable
+2. **Historical Preservation** — Never discard valuable history
+3. **Extensibility** — Design for evolution
+4. **Normalization** — Organize data logically (with intentional exceptions)
+5. **Query Efficiency** — Support important access patterns
+6. **Auditability** — Track important changes
+7. **AI-Readiness** — Enable future insights and personalization
 
----
-
-# 2. Core Principles
-
-Our database should prioritize:
-
-* Data integrity
-* Historical preservation
-* Extensibility
-* Normalization (where appropriate)
-* Query efficiency
-* Auditability
-* AI-readiness
-
-Never sacrifice correctness for convenience.
+**Golden Rule:** Never sacrifice correctness for convenience.
 
 ---
 
-# 3. The Golden Rule
+## The Golden Rule: Prefer History Over Current State
 
-**Never store only the current state when historical state has value.**
+**Rule:** Never store only current state when historical state has value.
 
-Bad:
-
-```text
-Current Weight = 72kg
+### Bad Pattern
+```
+users.current_weight = 72kg
 ```
 
-Good:
-
-```text
-Weight Entries
-
-72kg
-
-71kg
-
-70kg
-
-69kg
+### Good Pattern
+```
+weight_entries (immutable history)
+  72kg  -- today
+  71kg  -- yesterday
+  70kg  -- 2 days ago
+  69kg  -- 3 days ago
 ```
 
-History enables:
+Historical data enables:
+- Progress tracking
+- Trend analysis
+- Pattern recognition
+- AI recommendations
+- User motivation and reflection
 
-* Progress tracking
-* Trend analysis
-* Predictions
-* AI recommendations
-
-History is a competitive advantage.
-
----
-
-# 4. Data Categories
-
-The platform contains multiple types of data.
-
-### Identity
-
-* User
-* Profile
-* Authentication
-* Preferences
+History is your competitive advantage.
 
 ---
 
-### Training
+## Core Data Categories
 
-* Workout
-* Exercise
-* Sets
-* Reps
-* Duration
-* Rest
+### 1. Identity & Profile
 
----
+Relatively stable:
+- `users` — Core user account
+- `user_profiles` — Additional profile data
+- `authentications` — Login methods (email, OAuth, etc.)
+- `user_preferences` — Theme, notifications, language
 
-### Skill Progression
+### 2. Training Data
 
-* Skill
-* Progress stage
-* Milestones
-* Attempts
+The core domain:
+- `workouts` — Individual workout sessions
+- `workout_exercises` — Exercises within a workout
+- `workout_sets` — Sets within an exercise
+- `workout_attempts` — Individual set attempts (reps, weight, duration)
+- `exercises` — Exercise definitions and variations
 
----
+### 3. Program & Routine Data
 
-### Recovery
+User's training structures:
+- `programs` — Multi-week training programs
+- `program_phases` — Phases within programs
+- `routines` — Reusable workout templates
+- `routine_exercises` — Exercises within routines
 
-* Sleep
-* Fatigue
-* Soreness
-* Injury
-* Readiness
+### 4. Progress & Achievement Data
 
----
+Key for motivation and AI:
+- `skills` — Abilities users can unlock (pull-ups, handstands, etc.)
+- `skill_progress` — User's progression through skill levels
+- `milestones` — Major achievement targets
+- `milestone_achievements` — When user reaches milestones
+- `consistency_streaks` — Consecutive days/weeks active
+- `personal_records` — User's max weight, reps, time, etc.
 
-### Community
+### 5. Recovery & Health Data
 
-* Posts
-* Comments
-* Challenges
-* Reactions
+Support for holistic coaching:
+- `sleep_logs` — Daily sleep tracking
+- `fatigue_ratings` — How tired user feels
+- `soreness_logs` — Muscle soreness and location
+- `readiness_scores` — Calculated readiness to train
+- `injury_reports` — Injuries and their status
 
----
+### 6. Community & Social Data
 
-### Analytics
+User interaction and motivation:
+- `posts` — User-created content
+- `comments` — Comments on posts
+- `likes` — Reactions to content
+- `follows` — User relationships
+- `challenges` — Shared fitness challenges
 
-Derived data.
+### 7. Analytics & Insights
 
-Never manually edited.
+Derived, never manually edited:
+- `weekly_stats` — Aggregated weekly data (volume, frequency, etc.)
+- `monthly_stats` — Aggregated monthly data
+- `progress_reports` — AI-generated progress summaries
+- `ai_recommendations` — Personalized coaching suggestions
 
----
+### 8. AI & Learning Data
 
-### AI
-
-Predictions
-
-Recommendations
-
-Embeddings (future)
-
-Insights
-
----
-
-# 5. Normalize Business Data
-
-Business entities should be normalized.
-
-Example:
-
-Workout
-
-↓
-
-Exercises
-
-↓
-
-Sets
-
-Instead of storing one giant JSON object.
-
-Normalization preserves flexibility.
+Support for ML models:
+- `ai_predictions` — Model predictions (recovery needs, etc.)
+- `user_embeddings` — Vector representations (future)
+- `training_insights` — Patterns discovered by AI
+- `coaching_history` — What advice was given when
 
 ---
 
-# 6. Snapshot Historical Context
+## Schema Design Principles
 
-Some things should be duplicated intentionally.
+### 1. Normalize Business Entities
 
-Example:
+Business concepts should be properly normalized, not flattened into JSON.
 
-A workout should remember:
+**Bad:**
+```json
+{
+  "workout": {
+    "id": "123",
+    "exercisesJson": "[{name, sets, reps}]"
+  }
+}
+```
 
-Exercise Name
+**Good:**
+```
+workouts
+  ↓
+workout_exercises
+  ↓
+workout_sets
+  ↓
+workout_attempts
+```
 
-even if the exercise library changes later.
+Normalization preserves flexibility for future features and analysis.
 
-Otherwise historical reports become incorrect.
+### 2. Snapshot Historical Context (Intentional Duplication)
 
-Historical accuracy is more important than perfect normalization.
+Some data should be intentionally duplicated for historical accuracy.
 
----
+**Example:**
 
-# 7. Immutable History
+When a user completes a workout, store:
+- The exercise ID (for relational queries)
+- The exercise name **as it was that day** (for historical accuracy)
 
-Workout logs should be mostly immutable.
+If the exercise library is renamed later, historical reports remain accurate.
 
-Completed workouts should not be silently rewritten.
+**Principle:** Historical accuracy > Perfect normalization
 
-Corrections should be explicit.
+### 3. Immutable History
 
-History should reflect reality.
+Completed workouts should be mostly immutable.
 
----
+- Users cannot silently edit past workouts
+- Corrections are explicit (marked as corrections)
+- History reflects reality, not revised reality
 
-# 8. Avoid Derived Data
+If a user logged 10 reps by mistake and meant 8:
+```
+workout_attempt
+  recorded_reps: 10 (original)
+  corrected_reps: 8 (correction marked with timestamp)
+```
 
-Never permanently store values that can be calculated.
+### 4. Avoid Storing Derived Data
 
-Examples:
+Never permanently store values that can be reliably calculated.
 
-Workout Volume
+**Bad:** Store `weekly_volume`, `total_prs`, `consistency_percentage` as columns
 
-Total PRs
+**Good:** Calculate on-demand OR materialize through controlled processes
 
-Consistency %
+Exception: Cache frequently-needed calculations in dedicated tables if performance demands it, but mark them as cached.
 
-Weekly Statistics
+### 5. Audit Fields
 
-Instead:
+Every table requires:
 
-Calculate
-
-or
-
-Maintain through controlled projections when performance requires it.
-
----
-
-# 9. Audit Fields
-
-Every table should include:
-
-```text
-created_at
-
-updated_at
+```sql
+created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 ```
 
 Where appropriate:
 
-```text
-created_by
-
-updated_by
-
-deleted_at
+```sql
+created_by UUID REFERENCES users(id)
+updated_by UUID REFERENCES users(id)
+deleted_at TIMESTAMP WITH TIME ZONE -- for soft deletes
 ```
 
-Soft deletion should be used selectively.
+### 6. Stable Identifiers (IDs)
 
----
+Every entity uses stable, non-sequential identifiers.
 
-# 10. IDs
+**Preferred:** UUID v7 or ULID
 
-Every entity should use stable identifiers.
+**Why not sequential IDs:**
+- Security exposure (predictable, can enumerate users)
+- Difficult in distributed systems
+- Difficult for data synchronization
 
-Avoid sequential IDs exposed publicly.
+### 7. Consistent Naming Conventions
 
-Preferred:
-
-UUID
-
-or
-
-ULID
-
-Benefits:
-
-* Better security
-* Easier distributed systems
-* Easier synchronization
-
----
-
-# 11. Naming Conventions
-
-Tables:
-
-snake_case
-
-```text
-workout_session
-
-exercise
-
-skill_progress
+**Tables:** `snake_case`, plural form
+```
+workout_sessions
+exercise_categories
+user_preferences
 ```
 
-Columns:
-
-snake_case
-
-```text
+**Columns:** `snake_case`
+```
 created_at
-
-updated_at
-
-completed_at
-
 user_id
+workout_session_id
+is_completed
 ```
 
-Consistency matters more than style.
-
----
-
-# 12. Relationships
-
-Use explicit foreign keys.
-
-Do not rely solely on application logic.
-
-Example:
-
-Workout
-
-↓
-
-Exercise
-
-↓
-
-Workout Set
-
-↓
-
-Attempt
-
-Relationships communicate business meaning.
-
----
-
-# 13. Constraints
-
-Every important business rule should be enforced where practical.
-
-Examples:
-
-* NOT NULL
-* UNIQUE
-* CHECK constraints
-* Foreign keys
-
-The database should protect itself.
-
----
-
-# 14. Indexing Strategy
-
-Index:
-
-* Foreign keys
-* Search fields
-* Frequently filtered columns
-* Sorting columns
-
-Do not over-index.
-
-Indexes speed reads but slow writes.
-
-Measure before optimizing.
-
----
-
-# 15. JSON Usage
-
-JSON columns should be used sparingly.
-
-Good candidates:
-
-* Feature flags
-* Flexible preferences
-* AI metadata
-* External provider payloads
-
-Core business entities should remain relational.
-
----
-
-# 16. Time
-
-Always store:
-
-UTC
-
-Always use:
-
-ISO 8601
-
-Never store local times without timezone context.
-
-Users travel.
-
-Time should remain consistent.
-
----
-
-# 17. Historical Timeline
-
-One of the platform's most valuable datasets will be the user's timeline.
-
-Examples:
-
-```text
-Workout Completed
-
-↓
-
-First Pull-up
-
-↓
-
-100 Day Streak
-
-↓
-
-Planche Unlocked
-
-↓
-
-Challenge Joined
-
-↓
-
-PR Achieved
+**Foreign Keys:** `{entity}_id`
+```
+user_id (references users)
+workout_id (references workouts)
 ```
 
-This timeline powers:
+Consistency matters more than aesthetic preferences.
 
-* Progress visualization
-* Motivation
-* AI coaching
-* User memories
+### 8. Explicit Relationships
 
-Treat it as a first-class concept.
+Use explicit foreign key constraints. Do not rely solely on application logic.
+
+**Good:**
+```sql
+ALTER TABLE workout_exercises
+ADD CONSTRAINT fk_workout_exercises_workout_id
+FOREIGN KEY (workout_id) REFERENCES workouts(id);
+```
+
+Relationships communicate business meaning and provide database-level protection.
+
+### 9. Enforce Business Rules at Database Level
+
+Protect invariants with constraints where practical.
+
+**Examples:**
+
+```sql
+-- Ensure workout has exercises
+ALTER TABLE workouts
+ADD CONSTRAINT check_workout_has_data
+CHECK (exercise_count > 0);
+
+-- Ensure progressive weight
+ALTER TABLE workout_attempts
+ADD CONSTRAINT check_valid_weight
+CHECK (weight_kg >= 0);
+
+-- Ensure valid attempts
+ALTER TABLE workout_attempts
+ADD CONSTRAINT check_valid_reps
+CHECK (reps > 0 OR duration_seconds > 0);
+
+-- User email is unique
+ALTER TABLE users
+ADD CONSTRAINT unique_email_per_user
+UNIQUE(email);
+```
+
+The database should protect itself from invalid states.
+
+### 10. Indexing Strategy
+
+**Index these:**
+- Foreign key columns
+- Columns used in WHERE clauses
+- Columns used in JOIN conditions
+- Columns used for sorting (ORDER BY)
+- Columns used for searching (LIKE, ILIKE)
+
+**Don't over-index:**
+- Indexes speed reads but slow writes
+- Every index consumes disk space
+- Profile before optimizing
+
+**Example:**
+```sql
+-- Common queries for user's workouts
+CREATE INDEX idx_workouts_user_id_created_at
+ON workouts(user_id, created_at DESC);
+
+-- Search by exercise type
+CREATE INDEX idx_exercises_category
+ON exercises(category);
+```
+
+### 11. JSON Usage (Use Sparingly)
+
+JSON columns should be used selectively for:
+- **Good candidates:**
+  - Feature flags per user
+  - Flexible preferences
+  - AI metadata
+  - External provider payloads
+  - Complex preference hierarchies
+
+- **Poor candidates:**
+  - Core business entities
+  - Data that needs frequent querying
+  - Data that needs indexing
+  - Data that should be audited column-by-column
+
+**Principle:** Core entities stay relational. Edge cases can use JSON.
+
+### 12. Time Handling
+
+**All timestamps:**
+- Stored in UTC
+- Include timezone (TIMESTAMP WITH TIME ZONE)
+- Formatted as ISO 8601
+
+**Never:**
+- Store local times without timezone
+- Mix timezones
+- Use integer timestamps
+
+```sql
+-- Correct
+created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+
+-- Incorrect
+created_at TIMESTAMP WITHOUT TIME ZONE
+created_at BIGINT -- Unix timestamp
+```
+
+Users travel. Time must remain consistent and unambiguous.
 
 ---
 
-# 18. AI-Ready Data
+## Important Concepts
 
-Whenever possible, prefer structured data.
+### Historical Timeline
 
-Bad:
+One of the platform's most valuable datasets is the user's timeline of events:
 
-```text
-"I felt okay today."
+```
+Workout Completed (2025-01-15)
+  ↓
+First Pull-up Unlocked (2025-02-03)
+  ↓
+100-Day Consistency Streak Reached (2025-04-15)
+  ↓
+Planche Skill Unlocked (2025-06-10)
+  ↓
+Personal Record: 405lb Deadlift (2025-07-22)
+  ↓
+Challenge Joined (2025-08-01)
 ```
 
-Better:
+This timeline serves:
+- Progress visualization
+- User motivation and pride
+- AI pattern recognition
+- Personal fitness narrative
 
-```text
-Energy: 7
+Treat timeline events as first-class, queryable concepts.
 
-Sleep: 8
+### AI-Ready Data
 
-Soreness: Chest
+Structured data produces better AI insights than free-form data.
 
-Mood: Motivated
+**Bad:**
+```
+notes: "I felt okay today"
 ```
 
-Structured data produces better insights.
+**Good:**
+```
+energy_level: 7 (1-10 scale)
+sleep_hours: 8
+soreness_location: chest
+mood: motivated
+```
 
----
+Always prefer structured, categorical data over free-form text for AI features.
 
-# 19. Event History
+### Event-Based Thinking
 
-Every major business event should be capturable.
+Major business events should be capturable and queryable:
 
-Examples:
-
-```text
+```
 WorkoutCompleted
-
 RoutineCreated
-
 SkillUnlocked
-
 MilestoneReached
-
 RecoveryLogged
-
 WeightUpdated
-
-ChallengeCompleted
+StreakContinued
+ChallengeJoined
 ```
 
-Events become valuable for:
-
-* Analytics
-* AI
-* Notifications
-* Auditing
-
----
-
-# 20. Soft Deletes
-
-Use soft deletes only where recovery is valuable.
-
-Examples:
-
-Good:
-
-Routines
-
-Community Posts
-
-Bad:
-
-Workout Sets
-
-Exercise Attempts
-
-Historical records should usually remain permanent.
+Events are valuable for:
+- Analytics and dashboards
+- AI coaching
+- Notifications
+- User engagement
+- Auditing
 
 ---
 
-# 21. Backups
+## Implementation Decisions
 
-Database backups should be:
+### Soft Deletes
 
-* Automated
-* Verified
-* Versioned
-* Encrypted
+Use soft deletes only when recovery is valuable. Mark with `deleted_at`.
+
+**Good candidates for soft delete:**
+- User routines (user might restore)
+- Community posts (user might undelete)
+- Programs (user might return)
+
+**Poor candidates for soft delete:**
+- Workout sets (keep complete history)
+- Exercise attempts (keep complete history)
+- Milestones (immutable achievements)
+
+**Principle:** Historical records usually stay permanent. Soft deletes for user-controlled content.
+
+### Migrations
+
+Every schema change must be:
+- Version controlled (in code)
+- Repeatable (runnable multiple times)
+- Reversible (can rollback)
+- Reviewed (peer review before prod)
+
+**Never modify production databases manually.**
+
+Use migration tools (EF Core migrations, Flyway, etc.) to track all changes.
+
+### Backups
+
+Database backups must be:
+- ✓ Automated (daily minimum)
+- ✓ Verified (restore tested regularly)
+- ✓ Versioned (keep multiple versions)
+- ✓ Encrypted (in transit and at rest)
 
 Regular restore testing is as important as backups themselves.
 
 ---
 
-# 22. Migrations
+## Scalability & Evolution
 
-Every schema change must be:
+Design for gradual growth, not anticipatory overengineering.
 
-* Version controlled
-* Repeatable
-* Reversible (where possible)
-* Reviewed
+### Phase 1: MVP
+- Single PostgreSQL instance
+- Standard indexes
+- No sharding
 
-Never modify production databases manually.
+### Phase 2: Growth (1M+ workouts)
+- Read replicas for analytics
+- Connection pooling
+- Optimized indexes based on actual queries
 
----
+### Phase 3: Scale (10M+ workouts)
+- Partitioning large tables by user or time
+- Time-series table for high-volume events
+- Dedicated analytics database (data warehouse)
 
-# 23. Scalability
+### Phase 4: Global Scale (100M+ users)
+- Multi-region deployment
+- Geographically distributed replicas
+- Archive cold data to separate storage
 
-Design for gradual growth.
-
-Stage 1:
-
-Single PostgreSQL instance
-
-↓
-
-Stage 2:
-
-Read replicas
-
-↓
-
-Stage 3:
-
-Partitioning large tables
-
-↓
-
-Stage 4:
-
-Dedicated analytics storage
-
-Do not optimize for billion-row datasets prematurely.
+**Principle:** Only introduce complexity when real, measured needs demand it.
 
 ---
 
-# 24. Data Retention
+## Data Retention Policy
 
-Default policy:
+**Default:** Keep user fitness history indefinitely unless:
+- User explicitly requests deletion
+- Legal requirements mandate deletion (GDPR, etc.)
+- User account is permanently closed
 
-Keep user fitness history indefinitely unless the user requests deletion or legal requirements dictate otherwise.
-
-Historical fitness data becomes more valuable over time.
-
----
-
-# 25. Database Checklist
-
-Before creating a new table, ask:
-
-* Does this represent a real business concept?
-* Will future AI benefit from this data?
-* Is historical tracking needed?
-* Should this be normalized?
-* Is the relationship explicit?
-* Are constraints defined?
-* Are indexes justified?
-* Can this evolve over time?
-
-If the answer to several questions is "no", reconsider the design.
+**Rationale:** Historical fitness data becomes more valuable over time. A user's 10-year fitness journey tells a story that recent data alone cannot.
 
 ---
 
-# 26. One Principle That Will Shape This Entire Product
+## Design Checklist
 
-This is a principle I'd like us to adopt for every future schema discussion:
+Before creating a new table, answer:
+
+- ✓ Does this represent a real business concept?
+- ✓ Will future AI benefit from this data?
+- ✓ Is historical tracking needed?
+- ✓ Should this be normalized or denormalized?
+- ✓ Are relationships explicit?
+- ✓ Are business constraints defined?
+- ✓ Are necessary indexes identified?
+- ✓ Can this schema evolve with the product?
+- ✓ What queries will access this data?
+
+If several answers are "no", reconsider the design before implementation.
+
+---
+
+## Guiding Principle
 
 > **Collect data once. Use it forever.**
 
 Imagine a user logs a workout today.
 
-Today it helps them remember what they did.
+- **Today:** Helps them remember what they did
+- **Next month:** Contributes to consistency tracking
+- **Next year:** Powers recovery insights
+- **Five years later:** AI recognizes patterns the user never noticed
+- **Ten years later:** Becomes part of their lifelong fitness story
 
-Next month it contributes to consistency tracking.
-
-Next year it powers recovery insights.
-
-Five years later it enables an AI coach to recognize patterns the user never noticed.
-
-Ten years later it becomes part of their lifelong fitness story.
-
-The same data continues creating value.
+The same data continues creating value across decades.
 
 That is the kind of platform we're building.
 
 ---
 
-# Technical Architect Notes
+## The Bigger Picture
 
-Many startups think their product is the app.
+Many startups think their product is the app. It isn't.
 
-It isn't.
-
-The app is replaceable.
-
-The UI will change.
-
-The backend will evolve.
-
-Frameworks will become obsolete.
+The app is replaceable:
+- UI will change
+- Backend frameworks will evolve
+- Platforms will emerge and decline
 
 But **the data will remain**.
 
-Companies like Strava, WHOOP, and MyFitnessPal are difficult to compete with not just because of their features, but because they possess years of high-quality user data.
+Companies like Strava, WHOOP, and MyFitnessPal are defensible competitors not just because of features, but because they possess years of high-quality user data.
 
-Your long-term vision is an AI fitness companion that deeply understands each individual. That vision will only be possible if we are disciplined about what we collect, how we structure it, and how we preserve it.
+Your long-term vision is an AI fitness companion that deeply understands each individual. That vision is only possible through disciplined database design that captures meaningful data and preserves it perfectly.
 
 **Your database is not just storage. It is the memory of every athlete who trusts your platform.**
-
----
-
-## One improvement I'd make to the entire repository
-
-After we finish `03-engineering`, I recommend we return to `02-domain` and redesign the **entire domain model** using **Domain-Driven Design (DDD)**.
-
-Instead of listing entities, we'll identify:
-
-* Aggregates
-* Aggregate Roots
-* Value Objects
-* Domain Events
-* Bounded Contexts
-* Ubiquitous Language
-* Invariants
-
-Given your ambition for this platform, I believe a DDD-based domain model will serve you far better than a traditional ERD. It will also make Claude Code much better at generating business logic because the domain concepts will be explicit rather than implicit. I consider that one of the highest-value improvements we can make before writing production code.

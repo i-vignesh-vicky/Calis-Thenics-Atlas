@@ -1,33 +1,19 @@
-Yes. According to the structure we defined, we've completed almost all of **01-product** and a large portion of the engineering thinking. The next logical document is:
+# Architecture
 
-# `03-engineering/architecture.md`
+## Purpose
 
-This is probably the most important document in the entire repository.
+This document defines the high-level system architecture for Calis-Thenics-Atlas. It explains how the system is organized, the rationale for each structural decision, and how the platform can evolve from MVP to a global AI-powered fitness ecosystem.
 
----
+## Guiding Philosophy
 
-# architecture.md
+**We are building Version 1.0 of a platform designed for the next decade, not an MVP to be discarded.**
 
-> **Purpose**
->
-> This document defines the high-level architecture of Project Atlas. It explains how the system is organized, why it is structured this way, and how it can evolve from an MVP serving hundreds of users into a global AI-powered fitness ecosystem serving millions.
+Every architectural decision optimizes for this principle:
 
----
-
-# Architecture Principles
-
-The architecture is designed around one primary belief:
-
-> **We are not building an MVP that will be thrown away. We are building Version 1 of a platform that will evolve for the next decade.**
-
-Every technical decision should optimize for:
-
-* Simplicity first
-* Extensibility second
-* Performance third
-* Premature optimization never
-
-The MVP should remain understandable by a single engineer while leaving clear paths for scaling.
+1. **Simplicity first** — The MVP must remain understandable by a single engineer
+2. **Extensibility second** — Clear paths for evolution without rearchitecting
+3. **Performance third** — Optimize only when profiling identifies genuine bottlenecks
+4. **Never premature optimization**
 
 ---
 

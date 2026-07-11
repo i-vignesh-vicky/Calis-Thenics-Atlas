@@ -1,303 +1,609 @@
-Perfect. From this point onward, we stop talking about architecture in general and start defining **engineering contracts**.
-
-This is one of the most important documents Claude Code (or any AI coding assistant) will repeatedly consult while generating APIs.
-
-A good API guideline prevents thousands of inconsistent decisions.
-
----
-
-# `03-engineering/api-guidelines.md`
-
 # API Design Guidelines
 
-> **Purpose**
->
-> This document defines the standards, conventions, and best practices for designing and implementing APIs across the platform.
->
-> The goal is to create APIs that are intuitive, consistent, versionable, secure, and easy to evolve without breaking clients.
->
-> APIs should model business capabilities rather than database tables.
+## Purpose
+
+This document defines standards, conventions, and best practices for designing and implementing APIs across Calis-Thenics-Atlas.
+
+APIs are the public contract between the backend and its consumers. Once published, changing an API becomes expensive and breaks clients. Therefore, **design APIs deliberately**.
+
+The goal is to create APIs that are intuitive, consistent, versionable, secure, and easy to evolve without breaking clients.
 
 ---
 
-# 1. API Philosophy
+## API Philosophy
 
-The API is the public contract between the backend and its consumers.
+The API is the interface between backend and consumers:
 
-Consumers may include:
+- Mobile app (Flutter)
+- Future web app
+- Admin portal
+- AI services
+- Third-party integrations
+- Wearables (future)
 
-* Mobile App
-* Web App
-* Admin Portal
-* AI Services
-* Third-party Integrations
-* Future Wearables
+### Design Principle
 
-Once an API is published, changing it becomes expensive.
+**APIs should model business capabilities, not database tables.**
 
-Therefore:
-
-> **Design APIs deliberately.**
+Bad API design exposes database structure. Good API design exposes business behavior.
 
 ---
 
-# 2. Guiding Principles
+## Guiding Principles
 
-Every API should be:
+Every API must be:
 
-* Consistent
-* Predictable
-* Discoverable
-* Backward compatible
-* Business-oriented
-* Secure
-* Well documented
+1. **Consistent** — Predictable naming, structure, behavior
+2. **Predictable** — Users can infer patterns
+3. **Discoverable** — Self-documenting through conventions
+4. **Backward Compatible** — Client evolution doesn't break servers
+5. **Business-Oriented** — Models real user workflows
+6. **Secure** — Requires authentication/authorization
+7. **Well-Documented** — OpenAPI/Swagger specification required
 
 ---
 
-# 3. Resource Naming
+## Resource Naming
 
-Use nouns, not verbs.
+Use **nouns**, not verbs. HTTP methods describe the action.
 
-Good:
+### Good Examples
 
-```text
-/users
-
-/workouts
-
-/routines
-
-/programs
-
-/exercises
-
-/skills
-
-/timeline
-
-/challenges
+```
+GET    /users
+POST   /users
+GET    /users/{id}
+GET    /workouts
+POST   /workouts
+GET    /workouts/{id}
+GET    /routines
+GET    /programs/{id}/exercises
+POST   /skills/{id}/unlock
+GET    /timeline
+POST   /challenges/{id}/join
 ```
 
-Avoid:
+### Bad Examples
 
-```text
-/getWorkout
-
-/createRoutine
-
-/deleteExercise
-
-/updateWorkout
+```
+GET    /getUser
+POST   /createUser
+POST   /updateWorkout
+POST   /deleteWorkout
+GET    /fetchRoutines
+POST   /joinChallenge
 ```
 
-HTTP methods already describe the action.
+### Resource Hierarchy
+
+Keep URLs simple and flat:
+
+**Good:**
+```
+GET /workouts/{id}
+GET /workouts?createdAfter=2025-01-01
+```
+
+**Avoid excessive nesting:**
+```
+❌ GET /users/123/workouts/456/exercises/789/sets/1000
+✓ GET /workout-exercises/{id}  (with links to related resources)
+```
+
+Query related resources separately. Use link relationships or include parameters.
 
 ---
 
-# 4. Use Business Actions When Needed
+## Business Actions (Non-CRUD)
 
-Some operations are not CRUD.
+Some operations are not standard CRUD. Use domain verbs in the URL:
 
-Examples:
+**Examples:**
 
 Instead of:
-
-```text
-POST /workouts/updateStatus
+```
+POST /workouts/{id}
+{ "status": "completed" }
 ```
 
 Use:
-
-```text
+```
 POST /workouts/{id}/complete
+{}
 ```
 
 Instead of:
-
-```text
-POST /skill/update
+```
+POST /skills
+{ "action": "unlock" }
 ```
 
 Use:
-
-```text
+```
 POST /skills/{id}/unlock
+{}
 ```
 
-The endpoint should reflect the business event.
+Domain-specific actions clarify intent:
+```
+POST /challenges/{id}/join
+POST /routines/{id}/activate
+POST /milestones/{id}/claim
+POST /workouts/{id}/pause
+```
 
 ---
 
-# 5. HTTP Methods
+## HTTP Methods
 
-| Method | Purpose                                      |
-| ------ | -------------------------------------------- |
-| GET    | Retrieve resources                           |
-| POST   | Create resources or perform business actions |
-| PUT    | Replace entire resource                      |
-| PATCH  | Partial updates                              |
-| DELETE | Remove resource                              |
+| Method | Purpose | Idempotent | Has Body |
+|--------|---------|-----------|----------|
+| GET | Retrieve resource(s) | Yes | No |
+| POST | Create resource or perform action | No | Yes |
+| PUT | Replace entire resource | Yes | Yes |
+| PATCH | Partial update | No | Yes |
+| DELETE | Remove resource | Yes | No |
+
+### Guidelines
+
+- **GET** — Retrieve data, no side effects
+- **POST** — Create resources OR perform business actions
+- **PUT** — Replace entire resource (include all fields)
+- **PATCH** — Partial updates (only provided fields)
+- **DELETE** — Remove resource (may be soft delete)
 
 Do not misuse POST for simple reads.
 
 ---
 
-# 6. URL Structure
+## URL Structure
 
-Keep URLs simple.
+### Path Format
 
-Good:
-
-```text
-/users/{id}
-
-/workouts/{id}
-
-/workouts/{id}/complete
-
-/routines/{id}
-
-/skills/{id}
-
-/timeline
+```
+/api/v1/{resource}/{id}/{sub-resource}
 ```
 
-Avoid deeply nested URLs.
+### Query Parameters
 
-Bad:
+Use query parameters for:
+- Filtering: `?status=completed`
+- Sorting: `?sort=createdAt`
+- Pagination: `?page=1&pageSize=20`
+- Searching: `?search=push`
+- Including related data: `?include=exercises,comments`
 
-```text
-/users/1/workouts/2/exercises/5/sets/4
+### Examples
+
 ```
-
-Prefer querying related resources separately.
+GET /api/v1/workouts
+GET /api/v1/workouts?status=completed&sort=-createdAt
+GET /api/v1/workouts/{id}
+GET /api/v1/workouts/{id}/exercises
+GET /api/v1/users/{id}/programs?include=exercises
+GET /api/v1/workouts?createdAfter=2025-01-01&createdBefore=2025-01-31
+```
 
 ---
 
-# 7. API Versioning
+## Versioning
 
-Version APIs only when necessary.
+### Strategy
 
-Preferred approach:
+Version APIs only when **breaking changes** are necessary.
 
-```text
-/api/v1/
+```
+/api/v1/  ← Current production version
+/api/v2/  ← If breaking changes required
 ```
 
-Breaking changes require a new version.
+### Breaking vs. Non-Breaking
 
-Non-breaking additions should not.
+**Breaking:**
+- ✗ Removing a field
+- ✗ Changing field type
+- ✗ Changing required fields
+- ✗ Changing behavior
 
-Deprecation should follow a documented migration process.
+**Non-Breaking:**
+- ✓ Adding optional field
+- ✓ Adding new endpoint
+- ✓ Adding query parameter
+- ✓ Expanding enum values
+
+### Deprecation
+
+Before removing an API version:
+1. Announce deprecation date (90+ days notice)
+2. Provide migration guide
+3. Monitor usage
+4. Sunset on announced date
 
 ---
 
-# 8. Request Bodies
+## Request Format
 
-Requests should include only the data required for the operation.
+### Request Body
 
-Example:
+Include only data required for the operation.
 
+**Example:**
 ```json
 {
   "name": "Push Day",
-  "description": "Upper body strength"
+  "description": "Upper body strength focus",
+  "exercises": [
+    { "id": "ex-123", "sets": 4, "reps": 8 }
+  ]
 }
 ```
 
-Do not expose database-specific fields.
+### Forbidden in Requests
 
-Never accept:
+Never accept from clients:
+- ✗ `createdAt`, `updatedAt` timestamps
+- ✗ Internal IDs for generated values
+- ✗ Audit fields (`createdBy`, `updatedBy`)
+- ✗ Server-calculated values (`totalVolume`, `maxWeight`)
+- ✗ Status fields that should be controlled by business logic
 
-* Created timestamps
-* Internal IDs for generated values
-* Audit fields
-* Server-calculated values
+### Content-Type
+
+Always use:
+```
+Content-Type: application/json
+```
 
 ---
 
-# 9. Response Structure
+## Response Format
 
-Responses should be consistent.
-
-Example:
+### Standard Response Structure
 
 ```json
 {
-  "data": {
-    ...
-  },
+  "data": { ... },
   "meta": {
-    ...
+    "timestamp": "2025-01-15T10:30:00Z",
+    "correlationId": "req-abc-123"
   }
 }
 ```
 
-For collections:
+### Collection Response
 
 ```json
 {
-  "data": [...],
+  "data": [ ... ],
   "meta": {
     "page": 1,
     "pageSize": 20,
     "totalItems": 150,
-    "totalPages": 8
+    "totalPages": 8,
+    "hasMore": true
+  }
+}
+```
+
+### Single Resource Response
+
+```json
+{
+  "data": {
+    "id": "workout-123",
+    "name": "Monday Push",
+    "duration": 45,
+    "exercises": [ ... ],
+    "createdAt": "2025-01-15T10:30:00Z"
+  },
+  "meta": {
+    "timestamp": "2025-01-15T10:30:00Z"
   }
 }
 ```
 
 ---
 
-# 10. Error Responses
+## HTTP Status Codes
 
-Errors should follow a consistent format.
+### Success Codes
 
-Example:
+| Code | When | Example |
+|------|------|---------|
+| 200 | Successful GET, PUT, PATCH | Retrieve workout |
+| 201 | Successful POST (created) | Created new routine |
+| 202 | Async action queued | Background processing |
+| 204 | Successful DELETE | Resource deleted |
+
+### Client Error Codes
+
+| Code | When | Example |
+|------|------|---------|
+| 400 | Invalid request | Missing required field |
+| 401 | Not authenticated | Missing JWT token |
+| 403 | Not authorized | User can't access resource |
+| 404 | Resource not found | Workout doesn't exist |
+| 409 | Conflict | Duplicate routine name |
+| 422 | Validation failed | Email invalid |
+
+### Server Error Codes
+
+| Code | When | Example |
+|------|------|---------|
+| 500 | Unexpected error | Database crash |
+| 503 | Service unavailable | Maintenance |
+
+---
+
+## Error Responses
+
+Errors should follow a consistent format:
 
 ```json
 {
   "error": {
-    "code": "WORKOUT_ALREADY_COMPLETED",
-    "message": "This workout has already been completed.",
-    "traceId": "...",
-    "timestamp": "..."
+    "code": "WORKOUT_NOT_FOUND",
+    "message": "The workout with ID 'abc-123' does not exist.",
+    "details": [
+      {
+        "field": "workoutId",
+        "issue": "Resource not found"
+      }
+    ],
+    "traceId": "trace-xyz",
+    "timestamp": "2025-01-15T10:30:00Z"
   }
 }
 ```
 
-Clients should rely on `code`, not the message.
+### Error Code Guidelines
 
-Messages are for humans.
+- Use **UPPER_SNAKE_CASE** for error codes
+- Make codes **programmer-friendly** (for code)
+- Make messages **user-friendly** (for humans)
 
-Codes are for software.
+**Example:**
+
+```json
+{
+  "error": {
+    "code": "INVALID_EMAIL_FORMAT",
+    "message": "The email address format is invalid. Please check and try again."
+  }
+}
+```
+
+Clients should:
+- Switch on `code` for logic
+- Display `message` to users
 
 ---
 
-# 11. Pagination
+## Pagination
 
 Large collections must be paginated.
 
-Example:
+### Offset-Based Pagination
 
-```text
-GET /community/posts?page=1&pageSize=20
+For standard queries:
+
+```
+GET /api/v1/workouts?page=2&pageSize=20
 ```
 
-Avoid returning thousands of records in one request.
+Response includes:
+```json
+{
+  "data": [ ... ],
+  "meta": {
+    "page": 2,
+    "pageSize": 20,
+    "totalItems": 500,
+    "totalPages": 25,
+    "hasMore": true
+  }
+}
+```
 
-Cursor-based pagination can be introduced later for high-volume feeds.
+### Cursor-Based Pagination
+
+For large datasets (activity feeds, comments):
+
+```
+GET /api/v1/timeline?limit=20&cursor=abc123
+```
+
+Response:
+```json
+{
+  "data": [ ... ],
+  "meta": {
+    "nextCursor": "def456",
+    "hasMore": true
+  }
+}
+```
 
 ---
 
-# 12. Filtering
+## Filtering
 
-Use query parameters.
+Use query parameters for filtering:
 
-Example:
+```
+GET /api/v1/workouts?status=completed
+GET /api/v1/workouts?createdAfter=2025-01-01
+GET /api/v1/workouts?difficulty=advanced&type=strength
+```
 
-```text
+### Common Filters
+
+- `status` — Filter by status
+- `createdAfter` / `createdBefore` — Date range
+- `type` — Category filter
+- `search` — Text search
+- `tags` — Multiple values
+
+---
+
+## Sorting
+
+Use query parameter for ordering:
+
+```
+GET /api/v1/workouts?sort=createdAt
+GET /api/v1/workouts?sort=-createdAt  (descending)
+GET /api/v1/workouts?sort=difficulty,createdAt
+```
+
+### Convention
+
+- Default: ascending order
+- Prefix `-` for descending (e.g., `-createdAt`)
+- Multiple sort fields comma-separated
+
+---
+
+## Partial Responses (Include)
+
+Allow clients to request specific fields:
+
+```
+GET /api/v1/workouts/{id}?include=exercises,comments
+```
+
+Reduces payload for mobile clients.
+
+---
+
+## Caching
+
+### Cache Headers
+
+```
+GET /api/v1/exercises  (cacheable)
+Cache-Control: public, max-age=3600
+
+GET /api/v1/workouts/{id}  (user-specific, not public cache)
+Cache-Control: private, max-age=300
+
+POST /api/v1/workouts  (not cacheable)
+Cache-Control: no-cache, no-store
+```
+
+### ETag Support
+
+Support ETags for efficient updates:
+
+```
+Response:
+ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+Cache-Control: max-age=60
+
+Client (next request):
+If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+
+Response:
+304 Not Modified  (use cached version)
+```
+
+---
+
+## Rate Limiting
+
+Include rate limit headers in responses:
+
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1234567890
+```
+
+When limit exceeded:
+```
+429 Too Many Requests
+
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Too many requests. Please retry after 60 seconds."
+  }
+}
+```
+
+---
+
+## API Documentation
+
+Every API must include:
+
+- **OpenAPI Specification (Swagger)** — Machine-readable contract
+- **README** — High-level overview
+- **Examples** — Request/response examples
+- **Error Documentation** — All possible error codes
+- **Authentication** — How to authenticate
+- **Rate Limits** — Limits per endpoint
+
+---
+
+## Backward Compatibility
+
+### When Adding Features
+
+✓ Add optional fields
+✓ Add new endpoints
+✓ Expand enum values
+✓ Add query parameters
+
+### When Removing Features
+
+✗ Remove required fields
+✗ Remove endpoints
+✗ Change field types
+✗ Change endpoint behavior
+
+Maintain compatibility for 1-2 API versions.
+
+---
+
+## Security in APIs
+
+- ✓ Require authentication (JWT token)
+- ✓ Require authorization (check user owns resource)
+- ✓ Validate all input
+- ✓ Enforce rate limiting
+- ✓ Use HTTPS only
+- ✓ Don't expose internal errors
+- ✓ Log security events
+- ✓ Include CORS headers appropriately
+
+---
+
+## API Design Checklist
+
+Before publishing an API:
+
+- ✓ Does the URL clearly represent the resource?
+- ✓ Does the HTTP method match the action?
+- ✓ Are required fields documented?
+- ✓ Are possible error codes documented?
+- ✓ Is the response format consistent?
+- ✓ Is pagination supported (if applicable)?
+- ✓ Is filtering supported (if applicable)?
+- ✓ Is rate limiting configured?
+- ✓ Is authentication/authorization required?
+- ✓ Is the API documented in OpenAPI?
+
+---
+
+## Evolution Over Time
+
+APIs should evolve gracefully:
+
+**Today:** Core CRUD + business actions
+**Growth:** Filtering, sorting, search
+**Scale:** Async operations, webhooks
+**Maturity:** GraphQL variant, custom query language
 GET /workouts?status=completed
 
 GET /skills?level=beginner

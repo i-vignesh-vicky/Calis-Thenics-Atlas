@@ -1,302 +1,569 @@
-Excellent. This is another document that many startups neglect, but it becomes invaluable as the codebase grows.
-
-One correction before we begin:
-
-> **We are not aiming for 100% test coverage.**
->
-> We are aiming for **100% confidence in our critical business logic.**
-
-That distinction is important. Chasing coverage percentages often leads to brittle tests with little value. Atlas should focus on testing what matters.
-
----
-
-# `03-engineering/testing.md`
-
-````markdown
 # Testing Strategy
 
-> "Testing is not about increasing code coverage.
-> Testing is about increasing confidence."
+> "Testing is not about increasing code coverage. Testing is about increasing confidence."
+
+## Purpose
+
+This document defines the testing philosophy and strategy for Calis-Thenics-Atlas.
+
+Objective: Ensure the platform remains reliable, maintainable, and safe to evolve as new features are introduced. Testing should provide confidence that business rules, user workflows, and system integrations continue to function correctly.
+
+**Key Distinction:** We aim for 100% confidence in our critical business logic, not 100% code coverage. Chasing coverage percentages often leads to brittle tests with little value.
 
 ---
 
-# Purpose
-
-This document defines the testing philosophy and strategy for Atlas.
-
-The objective is to ensure that the platform remains reliable, maintainable, and safe to evolve as new features are introduced.
-
-Testing should provide confidence that business rules, user workflows, and system integrations continue to function correctly.
-
----
-
-# Testing Philosophy
+## Testing Philosophy
 
 Atlas values:
 
-- Confidence over coverage
-- Business behavior over implementation details
-- Fast feedback
-- Deterministic tests
-- Readable tests
-- Long-term maintainability
+1. **Confidence** over coverage percentages
+2. **Business behavior** over implementation details
+3. **Fast feedback** — Tests should run quickly
+4. **Deterministic tests** — Same input always produces same output
+5. **Readable tests** — Tests should document behavior
+6. **Maintainability** — Tests should be easy to update
 
-A passing test suite should give engineers confidence to refactor without fear.
-
----
-
-# Testing Pyramid
-
-Atlas follows the traditional testing pyramid.
-
-```
-                E2E Tests
-             Integration Tests
-               Unit Tests
-```
-
-Approximate distribution:
-
-- Unit Tests: 70%
-- Integration Tests: 25%
-- End-to-End Tests: 5%
-
-These percentages are guidelines rather than strict targets.
+**Goal:** A passing test suite gives engineers confidence to refactor fearlessly.
 
 ---
 
-# Types of Tests
+## Testing Pyramid
 
-## Unit Tests
+Atlas follows the traditional testing pyramid:
 
-Purpose
+```
+        ┌───────────────┐
+        │  E2E Tests    │  5%
+        │   (Critical)  │
+        ├───────────────┤
+        │ Integration   │  25%
+        │    Tests      │
+        ├───────────────┤
+        │  Unit Tests   │  70%
+        │   (Fast)      │
+        └───────────────┘
+```
+
+Distribution is a guideline, not a strict rule. Focus on testing what matters.
+
+---
+
+## Unit Tests (70%)
+
+### Purpose
 
 Validate business logic in isolation.
 
-Characteristics
+### Characteristics
 
-- Fast
-- Independent
-- No database
-- No network
-- No file system
+- ✓ Fast (milliseconds)
+- ✓ Independent (no dependencies on other tests)
+- ✓ No database access
+- ✓ No network calls
+- ✓ No file system access
+- ✓ Deterministic (same result every run)
 
-Examples
+### What to Test
 
+**Domain Logic:**
 - Workout volume calculation
 - Skill progression logic
 - Recovery score calculation
 - Consistency streak logic
-- Milestone unlocking
+- Milestone unlocking conditions
+- Challenge eligibility
+
+**Value Object Behavior:**
+- Immutability
+- Equality
+- Validation
+
+**Aggregate Rules:**
+- Can an entity be in this state?
+- What side effects occur?
+
+### Example
+
+```csharp
+[Fact]
+public void CompleteWorkout_ShouldUnlockMilestone_WhenVolumeThresholdMet()
+{
+    // Arrange
+    var workout = new Workout(userId: 1, totalVolume: 5500);
+    
+    // Act
+    workout.Complete();
+    
+    // Assert
+    Assert.True(workout.IsMilestoneUnlocked);
+    Assert.Single(workout.DomainEvents, 
+        e => e is MilestoneUnlockedEvent);
+}
+```
+
+### Tools
+
+- xUnit or NUnit
+- Moq or NSubstitute (for dependencies)
+- FluentAssertions (readable assertions)
 
 ---
 
-## Integration Tests
+## Integration Tests (25%)
 
-Purpose
+### Purpose
 
 Verify that multiple components work together correctly.
 
-May include
+### Characteristics
 
-- Database
-- Entity Framework
-- Redis
-- External services (mocked when appropriate)
+- ✓ Medium speed (seconds)
+- ✓ May include database
+- ✓ May include ORM (EF Core)
+- ✓ May include external dependencies (mocked appropriately)
+- ✓ Test real interactions
 
-Examples
+### What to Test
 
+**Application Services:**
 - Create workout
-- Save routine
+- Complete workout
+- Join challenge
 - Authenticate user
-- Query workout history
+- Update profile
+
+**Database Access:**
+- Entity Framework queries
+- Saved data persistence
+- Relationships
+- Data validation
+
+**Service Integrations:**
+- Cache read/write
+- File upload
+- Email sending (mocked)
+- API calls (mocked)
+
+### Example
+
+```csharp
+[Fact]
+public async Task CreateWorkout_ShouldSaveAndReturnId()
+{
+    // Arrange
+    using var context = new TestDbContext();
+    var service = new WorkoutService(context);
+    var command = new CreateWorkoutCommand(userId: 1, name: "Push Day");
+    
+    // Act
+    var result = await service.CreateWorkout(command);
+    
+    // Assert
+    Assert.NotEqual(0, result.Id);
+    var saved = await context.Workouts.FindAsync(result.Id);
+    Assert.NotNull(saved);
+    Assert.Equal("Push Day", saved.Name);
+}
+```
 
 ---
 
 ## API Tests
 
-Purpose
+### Purpose
 
-Verify API behavior from the consumer's perspective.
+Verify API behavior from the client's perspective.
 
-Should validate
+### What to Validate
 
-- Status codes
-- Request validation
-- Authorization
-- Response contracts
-- Error responses
+- HTTP status codes
+- Request validation (400 errors)
+- Authorization (403 errors)
+- Response format and contracts
+- Error response format
+- Pagination
+- Filtering
 
----
+### Example
 
-## End-to-End Tests
-
-Purpose
-
-Validate complete user journeys.
-
-Examples
-
-- Register account
-- Create routine
-- Start workout
-- Complete workout
-- View progress timeline
-
-These tests simulate real user behavior.
-
----
-
-# What Should Be Tested
-
-Business rules
-
-Always.
-
-Business rules represent the heart of Atlas.
-
-Examples
-
-- Workout completion rules
-- Skill unlocking
-- Milestone eligibility
-- Challenge completion
-- Recovery calculations
-
----
-
-Application Services
-
-Important workflows.
-
-Examples
-
-- Create Workout
-- Complete Workout
-- Join Challenge
-- Update Profile
-
----
-
-Infrastructure
-
-Critical integrations.
-
-Examples
-
-- PostgreSQL
-- Redis
-- Authentication
-- File Storage
-
----
-
-Presentation
-
-Focus on API contracts rather than implementation details.
-
----
-
-# What Should Not Be Tested Excessively
-
-Avoid testing:
-
-- Framework behavior
-- Simple property getters/setters
-- Entity Framework internals
-- Third-party libraries
-- Auto-generated code
-
-Trust mature frameworks.
-
----
-
-# Test Naming
-
-Tests should describe behavior.
-
-Good
-
-```
-CompleteWorkout_ShouldUnlockMilestone_WhenConditionsAreMet
-```
-
-Good
-
-```
-CannotCompleteWorkout_WithoutCompletedSets
-```
-
-Bad
-
-```
-WorkoutTest1
-```
-
-Bad
-
-```
-TestWorkout
+```csharp
+[Fact]
+public async Task GetWorkout_WithInvalidId_ShouldReturn404()
+{
+    // Arrange
+    var client = new TestApiClient();
+    
+    // Act
+    var response = await client.GetAsync("/api/v1/workouts/invalid-id");
+    
+    // Assert
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    var error = await response.Content.ReadAsAsync<ErrorResponse>();
+    Assert.Equal("WORKOUT_NOT_FOUND", error.Code);
+}
 ```
 
 ---
 
-# Arrange / Act / Assert
+## End-to-End Tests (5%)
 
-Every unit test should follow:
+### Purpose
 
-Arrange
+Validate complete user journeys work correctly.
 
-↓
+### What to Test
 
-Act
+- Register account → Create routine → Log workout
+- Create challenge → Invite users → Complete challenge
+- Create program → Start workout → Log results
 
-↓
+### Characteristics
 
-Assert
+- Slow (may take seconds or minutes)
+- Test real application behavior
+- Run against staging environment
+- Use only for critical flows
 
-Avoid mixing these phases.
+### Example
+
+```csharp
+[Fact]
+public async Task UserJourney_RegisterAndLogWorkout()
+{
+    // Arrange
+    var app = new TestApplication();
+    var client = app.CreateClient();
+    
+    // Act - Register
+    var registerResponse = await client.PostAsJsonAsync(
+        "/api/v1/auth/register",
+        new { email = "user@test.com", password = "secure123" }
+    );
+    Assert.True(registerResponse.IsSuccessStatusCode);
+    
+    // Act - Create routine
+    var routineResponse = await client.PostAsJsonAsync(
+        "/api/v1/routines",
+        new { name = "Morning Push" }
+    );
+    Assert.True(routineResponse.IsSuccessStatusCode);
+    
+    // Act - Log workout
+    var workoutResponse = await client.PostAsJsonAsync(
+        "/api/v1/workouts",
+        new { routineId = 1, completedAt = DateTime.UtcNow }
+    );
+    Assert.Equal(HttpStatusCode.Created, workoutResponse.StatusCode);
+}
+```
 
 ---
 
-# One Assertion Philosophy
+## Test Organization
 
-Prefer one logical assertion per test.
+### By Feature
 
-Multiple related assertions are acceptable when validating one behavior.
+Organize tests with code:
+
+```
+tests/
+  Atlas.UnitTests/
+    Workouts/
+      CompleteWorkoutTests.cs
+      CalculateVolumeTests.cs
+      WorkoutValidatorTests.cs
+    Skills/
+      SkillProgressionTests.cs
+    Consistency/
+      StreakCalculationTests.cs
+  
+  Atlas.IntegrationTests/
+    Workouts/
+      CreateWorkoutTests.cs
+      CompleteWorkoutTests.cs
+    Auth/
+      AuthenticationTests.cs
+  
+  Atlas.ArchitectureTests/
+    LayerDependencyTests.cs
+    NamingConventionTests.cs
+```
+
+### Test Files
+
+One test class per business behavior:
+
+```csharp
+public class CompleteWorkoutTests
+{
+    [Fact]
+    public void ShouldMarkAsCompleted() { }
+    
+    [Fact]
+    public void ShouldCalculateVolume() { }
+    
+    [Fact]
+    public void ShouldUnlockMilestoneIfEligible() { }
+    
+    [Fact]
+    public void ShouldThrowIfAlreadyCompleted() { }
+}
+```
 
 ---
 
-# Test Independence
+## Test Naming
 
-Every test must be independent.
+Tests should describe behavior, not implementation.
 
-Tests must never depend on execution order.
+### Good Test Names
+
+```csharp
+CompleteWorkout_ShouldMarkAsCompleted()
+CompleteWorkout_ShouldUnlockMilestone_WhenVolumeThresholdMet()
+CreateWorkout_ShouldThrowException_WhenNameIsEmpty()
+CalculateVolume_ShouldSumAllSets()
+```
+
+### Bad Test Names
+
+```csharp
+Test1()
+WorkoutTest()
+TestComplete()
+DoTest()
+```
 
 ---
 
-# Deterministic Tests
+## Arrange / Act / Assert
 
-Tests should always produce the same result.
+Every test should follow AAA pattern:
 
-Avoid
+```csharp
+[Fact]
+public void CompleteWorkout_ShouldMarkAsCompleted()
+{
+    // ARRANGE - Set up test data
+    var workout = new Workout(userId: 1);
+    
+    // ACT - Perform the action
+    workout.Complete();
+    
+    // ASSERT - Verify the result
+    Assert.True(workout.IsCompleted);
+}
+```
 
-- Random values
-- Current system time
-- External APIs
-- Internet connectivity
-
-Inject clocks and random generators when necessary.
+Keep these phases distinct and clear.
 
 ---
 
-# Test Data
+## One Assertion per Test
 
-Use builders or factories.
+Prefer one logical assertion per test:
 
-Avoid manually creating large object graphs repeatedly.
+```csharp
+[Fact]
+public void ShouldUnlockMilestone() // One behavior
+{
+    // ...
+    Assert.True(workout.MilestoneUnlocked);
+}
+```
 
-Example
+Multiple related assertions to verify one behavior are acceptable:
+
+```csharp
+[Fact]
+public void ShouldUpdateWorkout() // One behavior (with multiple assertions)
+{
+    // ...
+    Assert.Equal(expectedVolume, workout.Volume);
+    Assert.Equal(expectedTime, workout.Duration);
+    Assert.True(workout.IsCompleted);
+}
+```
+
+---
+
+## Test Independence
+
+Every test must be independent:
+
+- ✓ Tests can run in any order
+- ✓ Tests don't depend on other tests
+- ✓ Tests can run in parallel
+- ✓ Clean up after themselves
+
+**Bad:**
+```csharp
+[Fact]
+public void Test1() { /* creates data */ }
+
+[Fact]
+public void Test2() { /* depends on Test1's data */ }
+```
+
+**Good:**
+```csharp
+[Fact]
+public void Test1() 
+{ 
+    var data = CreateTestData();
+    // Use data
+    CleanUp(data);
+}
+
+[Fact]
+public void Test2() 
+{ 
+    var data = CreateTestData();
+    // Independent setup
+}
+```
+
+---
+
+## Deterministic Tests
+
+Tests must produce consistent results.
+
+### Avoid
+
+- ✗ Random values
+- ✗ Current system time (DateTime.Now)
+- ✗ External APIs
+- ✗ Database not in known state
+- ✗ Network calls
+
+### Inject Dependencies
+
+```csharp
+// Create a clock abstraction
+public interface IClock { DateTime UtcNow { get; } }
+
+// Inject in tests
+var testClock = new TestClock(new DateTime(2025, 1, 15));
+var service = new WorkoutService(testClock);
+```
+
+---
+
+## Test Data Management
+
+### Use Builders or Factories
+
+```csharp
+var workout = new WorkoutBuilder()
+    .WithUserId(1)
+    .WithExercises(3)
+    .WithVolume(5000)
+    .Build();
+```
+
+### Avoid Manual Construction
+
+```csharp
+// Instead of:
+var workout = new Workout(1, "Push", true, 45, [...], [...], 5000);
+
+// Use:
+var workout = WorkoutTestBuilder.Default().Build();
+```
+
+---
+
+## Mocking & Test Doubles
+
+### When to Mock
+
+Mock external dependencies:
+- ✓ Database (use in-memory or test DB)
+- ✓ Email service
+- ✓ External APIs
+- ✓ File storage
+
+Don't mock:
+- ✗ Business logic
+- ✗ Value objects
+- ✗ Entities (test real ones)
+
+### Mock Tools
+
+- **Moq** — Recommended for .NET
+- **NSubstitute** — Fluent API
+- **Manual fakes** — Simple cases
+
+---
+
+## Architecture Tests
+
+Enforce structural rules:
+
+```csharp
+[Fact]
+public void DomainLayer_ShouldNotDependOnInfrastructure()
+{
+    var assembly = typeof(Workout).Assembly;
+    var result = new ArchUnitNET.Loader.ArchLoader()
+        .LoadAssemblies(assembly)
+        .Build()
+        .Subjects;
+    
+    Classes()
+        .That()
+        .ResideInNamespace("*.Domain")
+        .Should()
+        .NotDependOnAny(
+            Classes()
+                .That()
+                .ResideInNamespace("*.Infrastructure")
+        )
+        .Check(result);
+}
+```
+
+---
+
+## Test Checklist
+
+Before committing:
+
+- ✓ Does the test have a clear name?
+- ✓ Does it follow AAA pattern?
+- ✓ Is it independent?
+- ✓ Is it deterministic?
+- ✓ Does it test behavior, not implementation?
+- ✓ Is it fast enough?
+- ✓ Does it make assertions that matter?
+- ✓ Would this fail if the business logic breaks?
+
+---
+
+## Continuous Integration
+
+Tests should run:
+
+- ✓ On every commit (pre-commit hooks)
+- ✓ On every pull request
+- ✓ Before merge to main
+- ✓ Regularly (nightly or continuous)
+
+**Build should fail if tests fail.**
+
+---
+
+## Test Metrics
+
+Track:
+
+- Code coverage (informational, not gospel)
+- Test execution time
+- Test success rate
+- Tests added per feature
+
+Don't obsess over coverage percentage. Focus on meaningful tests.
 
 WorkoutBuilder
 

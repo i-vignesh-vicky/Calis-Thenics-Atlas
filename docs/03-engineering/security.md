@@ -1,25 +1,14 @@
-Excellent. This document is especially important for Atlas because we will eventually handle **personal fitness data, body measurements, workout history, and AI-generated recommendations**. Users are trusting us with information about their health and habits, so security must be designed in from day one—not added later.
-
----
-
-# `03-engineering/security.md`
-
-```markdown id="k4v9n2"
 # Security Guidelines
 
-> "Security is not a feature.
-> It is a fundamental quality of every feature."
+> "Security is not a feature. It is a fundamental quality of every feature."
 
----
+## Purpose
 
-# Purpose
+This document defines security principles, standards, and best practices for Calis-Thenics-Atlas.
 
-This document defines the security principles, standards, and best practices for Atlas.
+Users trust us with personal fitness data, body measurements, and health information. Security must be designed in from day one—not added later. Security must be considered throughout the entire development lifecycle: design, implementation, deployment, and maintenance.
 
-Security must be considered throughout the software development lifecycle, from design and implementation to deployment and maintenance.
-
-The goal is to protect:
-
+We protect:
 - User identities
 - Personal fitness data
 - Authentication credentials
@@ -28,275 +17,469 @@ The goal is to protect:
 
 ---
 
-# Security Principles
+## Security Principles
 
-Atlas follows these principles:
+Atlas follows these core security principles:
 
-- Secure by default
-- Least privilege
-- Defense in depth
-- Zero trust
-- Privacy first
-- Fail securely
+1. **Secure by Default** — Security is the default state; insecurity requires deliberate bypass
+2. **Least Privilege** — Every component has minimum necessary permissions
+3. **Defense in Depth** — Multiple security layers so breach of one doesn't compromise all
+4. **Zero Trust** — Never assume requests are legitimate; always verify
+5. **Privacy First** — Collect minimum necessary data; delete when no longer needed
+6. **Fail Securely** — When failures occur, default to the secure state
 
-Security should be proactive rather than reactive.
+Security is **proactive**, not reactive.
 
 ---
 
-# Authentication
+## Authentication
 
-Supported methods:
+### Supported Methods
 
-- Email & Password
-- Google Sign-In
+**Initial:**
+- Email & password
+- Google OAuth 2.0
 - Apple Sign-In
 
-Future:
-
-- Passkeys
+**Future:**
+- Passkeys (passwordless)
 - Enterprise SSO
 
-Passwords are never stored in plaintext.
+### Password Requirements
 
-Use industry-standard password hashing algorithms (e.g., Argon2 or bcrypt).
+- Minimum length: 8 characters
+- Common password detection (check against breached password databases)
+- Secure password hashing: Argon2 or bcrypt
+- Passwords never stored in plaintext
+- Password reset requires verification (email, SMS, etc.)
 
----
+### JWT (JSON Web Tokens)
 
-# Authorization
+**Access Tokens:**
+- Short-lived (15-60 minutes)
+- Signed with cryptographic key
+- Never logged or exposed in logs
+- Always transmitted over HTTPS
 
-Atlas uses Role-Based Access Control (RBAC).
+**Refresh Tokens:**
+- Longer-lived (days/weeks)
+- Rotated after each use
+- Revocable if compromise suspected
+- Stored securely (not in localStorage when possible)
+- Only used over HTTPS
 
-Initial roles:
+### OAuth Integration
 
-- User
-- Admin
-
-Future roles:
-
-- Coach
-- Moderator
-- Support
-- AI Service Account
-
-Every request must verify that the authenticated user is authorized to perform the requested action.
-
----
-
-# JWT Security
-
-Access tokens:
-
-- Short-lived
-- Signed
-- Never stored in logs
-
-Refresh tokens:
-
-- Rotated after use
-- Revocable
-- Stored securely
-
-Tokens must always be transmitted over HTTPS.
+When using OAuth (Google, Apple):
+- Validate state parameter to prevent CSRF
+- Verify ID token signature
+- Map external ID to internal user
+- Do not rely solely on email for account linkage
 
 ---
 
-# HTTPS
+## Authorization (RBAC)
 
-All traffic must use HTTPS.
+### Role-Based Access Control
 
-Plain HTTP is not supported.
+**Initial Roles:**
+- `User` — Standard user (default)
+- `Admin` — Platform administrators
 
-Enable HSTS in production.
+**Future Roles:**
+- `Coach` — Can provide guidance
+- `Moderator` — Community moderation
+- `Support` — Customer support agent
+- `AIService` — AI system account
+
+### Authorization Rules
+
+Every request must verify:
+1. User is authenticated (has valid token)
+2. User has required role/permission for the action
+3. User can only access their own data (or shared resources)
+
+Example:
+```csharp
+public async Task<WorkoutDto> GetWorkout(Guid id, Guid requestingUserId)
+{
+    var workout = await _repository.GetWorkout(id);
+    
+    if (workout.UserId != requestingUserId && !requestingUser.IsAdmin)
+        throw new UnauthorizedException();
+    
+    return workout;
+}
+```
 
 ---
 
-# Password Policy
+## HTTPS & Transport Security
 
-Minimum requirements:
+**Requirement:** All traffic must use HTTPS.
 
-- Minimum length
-- Common password detection
-- Secure reset flow
-
-Avoid overly complex composition rules that reduce usability.
+- Plain HTTP is **not supported**
+- HTTPS on all endpoints, including APIs
+- Force HTTPS redirect (301/308)
+- Enable HSTS (HTTP Strict-Transport-Security) in production
+  ```
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  ```
+- TLS 1.2 minimum (preferably 1.3)
 
 ---
 
-# Secrets Management
+## Secrets Management
 
-Never hardcode:
-
+**Never hardcode:**
 - API keys
-- Database credentials
-- JWT secrets
-- Connection strings
+- Database connection strings
+- JWT signing keys
+- OAuth secrets
+- Encryption keys
+- Third-party service credentials
 
-Use secure configuration management.
+### Storage
 
-Examples:
+Use secure configuration management:
+- Azure Key Vault (recommended)
+- AWS Secrets Manager
+- Environment variables (development only)
+- HashiCorp Vault
 
-- Azure Key Vault
-- Environment Variables
-- Docker Secrets
+### In Source Control
 
-Secrets must never be committed to source control.
+Secrets **must never** be committed:
+- Use `.gitignore` for secrets files
+- Scan repository history for leaked secrets
+- Rotate immediately if any secret is exposed
+- Use branch protection rules
+
+### Rotation
+
+- Rotate secrets regularly
+- Automate rotation where possible
+- Track rotation dates
+- Have rollback plan
 
 ---
 
-# Data Protection
+## Data Protection
 
-Protect all personally identifiable information (PII).
+### PII (Personally Identifiable Information)
 
-Examples:
-
-- Email
-- Body measurements
+Protect all PII:
+- Email addresses
+- Usernames
+- Body measurements (weight, height, body fat %)
 - Workout history
-- Progress data
+- Performance metrics
+- Health data
 
-Encrypt sensitive data where appropriate.
+### Encryption
+
+**At Rest:**
+- Sensitive data should be encrypted at database level (when practical)
+- Encryption keys separate from data
+- Key management system for key rotation
+
+**In Transit:**
+- All data transmitted over HTTPS
+- No unencrypted PII in logs or error messages
+
+### Data Minimization
+
+- Collect only data necessary for feature
+- Do not collect "just in case"
+- Document why each data element is collected
+- Delete data when no longer needed
+- Provide data export for users
 
 ---
 
-# Privacy
+## Privacy & User Control
 
 Users own their data.
 
-Users should be able to:
-
-- Export their data
-- Delete their account
-- Control profile visibility
-- Manage sharing preferences
-
-Atlas should collect only the data necessary to deliver value.
-
----
-
-# Input Validation
-
-Validate all user input.
-
-Never trust:
-
-- Client applications
-- Mobile devices
-- Browsers
-- Third-party integrations
-
-Validation occurs at:
-
-- API boundary
-- Application layer
-- Domain layer
+Provide:
+- ✓ Data export (all user data in standard format)
+- ✓ Account deletion (removes PII, may keep anonymized data)
+- ✓ Privacy controls (who can see profile, workouts, etc.)
+- ✓ Data sharing preferences
+- ✓ Marketing opt-out
+- ✓ Cookie/tracking opt-out
 
 ---
 
-# SQL Injection
+## Input Validation
 
-Always use parameterized queries.
+**Rule:** Never trust client-provided data.
 
-Never build SQL through string concatenation.
+Validate at **all layers**:
 
-Entity Framework queries should avoid raw SQL unless absolutely necessary.
+**API Boundary:**
+```csharp
+[HttpPost("/workouts")]
+public async Task<WorkoutDto> CreateWorkout([FromBody] CreateWorkoutRequest request)
+{
+    if (string.IsNullOrEmpty(request.Name))
+        return BadRequest("Name is required");
+    if (request.Name.Length > 255)
+        return BadRequest("Name too long");
+}
+```
+
+**Application Layer:**
+```csharp
+public class CreateWorkoutHandler
+{
+    public async Task Handle(CreateWorkoutCommand cmd)
+    {
+        if (!WorkoutValidator.IsValid(cmd))
+            throw new ValidationException();
+    }
+}
+```
+
+**Domain Layer:**
+```csharp
+public class Workout
+{
+    public Workout(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new DomainException("Name required");
+        
+        Name = name;
+    }
+}
+```
+
+### Input Validation Includes
+
+- ✓ Length constraints
+- ✓ Type validation
+- ✓ Range validation (min/max)
+- ✓ Format validation (email, URL, phone)
+- ✓ Whitelist validation (allowed values)
+- ✓ Cross-field validation
 
 ---
 
-# Cross-Site Scripting (XSS)
+## SQL Injection Prevention
 
-Sanitize user-generated content before rendering.
+**Always use parameterized queries:**
 
-Examples:
+**Bad:**
+```csharp
+string query = $"SELECT * FROM Workouts WHERE UserId = {userId}";
+```
 
+**Good:**
+```csharp
+var workout = await context.Workouts
+    .Where(w => w.UserId == userId)
+    .ToListAsync();
+```
+
+**Rules:**
+- Use ORM (Entity Framework) when possible
+- If raw SQL, use parameters: `@userId`
+- Never concatenate user input into SQL strings
+- Review raw SQL carefully
+
+---
+
+## Cross-Site Scripting (XSS) Prevention
+
+Sanitize user-generated content before displaying:
+
+**Examples that need sanitization:**
 - Community posts
 - Comments
-- User biographies
+- User bios/descriptions
+- Any user-provided text rendered in UI
 
-Escape output where appropriate.
-
----
-
-# Cross-Site Request Forgery (CSRF)
-
-For browser-based clients, implement CSRF protection where applicable.
-
-Mobile applications using JWTs are generally not affected in the same way.
+**Prevention:**
+- HTML escape output
+- Use templating engines that escape by default
+- Content Security Policy (CSP) headers
+- Validate and sanitize on backend
 
 ---
 
-# File Upload Security
+## Cross-Site Request Forgery (CSRF) Prevention
 
-Future uploads (profile photos, videos, attachments) must:
+**For browser clients:**
+- Implement CSRF tokens
+- SameSite cookie attribute
 
-- Validate file type
-- Validate file size
-- Scan for malware where appropriate
-- Store outside the application root
-
-Never trust file extensions alone.
-
----
-
-# Rate Limiting
-
-Protect endpoints against abuse.
-
-Examples:
-
-- Login
-- Registration
-- Password reset
-- Public APIs
-
-Implement request throttling to reduce brute-force attacks.
+**For mobile/API clients:**
+- JWT in Authorization header (naturally CSRF-resistant)
+- No session cookies needed
 
 ---
 
-# Logging & Auditing
+## File Upload Security
+
+Future file uploads must:
+
+- ✓ Validate file type (MIME type + magic bytes)
+- ✓ Validate file size
+- ✓ Scan for malware (if practical)
+- ✓ Store outside application root
+- ✓ Use random filenames
+- ✓ Serve with correct content-type headers
+- ✓ Disable script execution in upload directory
+
+**Never:**
+- ✗ Trust file extensions
+- ✗ Store in web root
+- ✗ Use original filename
+- ✗ Allow arbitrary uploads without validation
+
+---
+
+## Rate Limiting
+
+Protect against abuse:
+
+**Endpoints to rate limit:**
+- `/auth/login` — Prevent brute force
+- `/auth/register` — Prevent account enumeration
+- `/auth/forgot-password` — Prevent spam
+- `/api/public/*` — Prevent DoS
+
+**Example:**
+```
+- Max 5 login attempts per email per 15 minutes
+- Max 3 registrations per IP per hour
+- Max 100 requests per user per minute (general API)
+```
+
+---
+
+## Logging & Auditing
+
+### What to Log
 
 Log security-relevant events:
+- ✓ Login (successful and failed)
+- ✓ Logout
+- ✓ Password changes
+- ✓ Permission changes
+- ✓ Role changes
+- ✓ Data export requests
+- ✓ Account deletion
+- ✓ Suspicious activity
 
-- Login
-- Logout
-- Failed login attempts
-- Password changes
-- Role changes
-- Account deletion
+### What NOT to Log
 
-Logs must never contain:
+Never log:
+- ✗ Passwords (ever)
+- ✗ Access tokens or JWT
+- ✗ Refresh tokens
+- ✗ API keys
+- ✗ OAuth secrets
+- ✗ Sensitive health/personal data
+- ✗ Large request/response bodies
 
-- Passwords
-- Access tokens
-- Refresh tokens
-- Sensitive personal data
+### Log Structure
+
+```json
+{
+  "timestamp": "2025-01-15T10:30:00Z",
+  "level": "INFO",
+  "event": "UserLoggedIn",
+  "userId": "123e4567-e89b-12d3-a456-426614174000",
+  "ipAddress": "192.168.1.1",
+  "userAgent": "Mozilla/5.0...",
+  "success": true,
+  "correlationId": "req-12345"
+}
+```
+
+---
+
+## Error Handling
+
+Error messages should be informative to legitimate users but not expose internals.
+
+**Bad:**
+```
+"Unexpected error: SQL Server at 192.168.1.50 connection timeout"
+```
+
+**Good:**
+```
+"An unexpected error occurred. Our team has been notified. Please try again later."
+```
+
+Detailed error information goes to logs, not to users.
 
 ---
 
-# Error Handling
+## Dependency Management
 
-Error messages should be informative without revealing internal implementation details.
-
-Bad:
-
-"Database connection failed at Server X."
-
-Good:
-
-"An unexpected error occurred. Please try again later."
+- ✓ Keep dependencies updated
+- ✓ Monitor for known vulnerabilities (Dependabot, Snyk)
+- ✓ Review third-party packages before adoption
+- ✓ Remove unused dependencies
+- ✓ Pin versions to avoid surprise upgrades
+- ✓ Audit licenses for compliance
 
 ---
 
-# Dependency Management
+## Security Checklist
 
-Keep dependencies up to date.
+Before deploying any feature:
 
-Monitor for known vulnerabilities.
-
-Review third-party packages before adoption.
-
-Remove unused dependencies.
+- ✓ Is all user input validated?
+- ✓ Are passwords/secrets never logged?
+- ✓ Is authorization checked on every action?
+- ✓ Is all data encrypted in transit?
+- ✓ Are error messages safe?
+- ✓ Are dependencies up to date?
+- ✓ Is the code reviewed by another engineer?
+- ✓ Are security tests in place?
 
 ---
+
+## Incident Response
+
+When a security issue is suspected:
+
+1. **Isolate** — Stop the bleeding, contain impact
+2. **Assess** — Understand what happened
+3. **Notify** — Inform affected users and stakeholders
+4. **Remediate** — Fix the issue
+5. **Review** — Learn and prevent recurrence
+
+Have a documented security incident response plan.
+
+---
+
+## Third-Party Security
+
+When integrating third-party services:
+
+- ✓ Verify TLS/HTTPS
+- ✓ Validate SSL certificates
+- ✓ Use API keys / OAuth
+- ✓ Monitor for API outages
+- ✓ Audit what data is shared
+- ✓ Review terms of service
+- ✓ Plan for service degradation
+
+---
+
+## Regular Security Review
+
+- Quarterly security reviews
+- Annual penetration testing (consider)
+- Regular dependency audits
+- Security training for team
+- Threat model reviews for new features
 
 # API Security
 
