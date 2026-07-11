@@ -1,263 +1,48 @@
-I actually want to improve upon the original idea for this document.
+# Timeline
 
-A normal timeline says:
+## Purpose
 
-> June → Idea
+Record the evolution of Atlas decisions and strategic inflection points.
 
-> July → MVP
+## Phase 0: Pre-Product Learning
 
-That's not useful.
+- Long-term lived calisthenics journey
+- Repeated friction with fragmented tools
+- Early hypothesis: consistency is the core challenge
 
-For Atlas, the timeline should capture the **evolution of thinking**. This becomes the historical record of *why* the product looks the way it does. Years from now, new engineers, designers, and leaders can read it and understand how Atlas evolved—not just when things happened.
+## Phase 1: Vision Formation
 
----
+- Shift from workout tracker concept to lifelong companion model
+- Emphasis on long-term outcomes and user transformation
 
-# `06-founder/timeline.md`
+## Phase 2: Philosophy and Principles
 
-```markdown
-# Atlas Timeline
+- Progress-over-perfection and consistency-first orientation
+- Trust and safety selected as non-negotiable constraints
 
-> "Great products are not built in a single moment.
-> They evolve through hundreds of decisions, conversations, and lessons."
+## Phase 3: Product Scope Definition
 
----
+- MVP boundaries established around core training loop and progress visibility
+- Defer advanced AI and broad integrations until foundations mature
 
-# Purpose
+## Phase 4: Architecture Direction
 
-This document records the evolution of Atlas.
+- Modular monolith and clean boundaries selected
+- Domain and event foundations designed for future intelligence
 
-It captures not only milestones but also the important ideas, decisions, and mindset shifts that shaped the product.
+## Phase 5: AI and Data Strategy
 
-As Atlas grows, this timeline becomes part of the company's institutional memory.
+- AI positioned as decision support, not product centerpiece
+- Data quality and longitudinal signals prioritized as strategic moat
 
----
+## Phase 6: Business Strategy
 
-# Phase 0 — The Beginning (Years Before Atlas)
+- Freemium model aligned with trust and value
+- Product-led growth model centered on user outcomes
 
-## The First Spark
+## Ongoing Principle
 
-The journey began more than fifteen years before Atlas existed.
-
-Watching someone perform a muscle-up changed how the founder viewed fitness.
-
-That single movement represented something that seemed impossible.
-
-Instead of feeling discouraged, it inspired curiosity.
-
-The question became:
-
-*"How can I do that?"*
-
-That question started a lifelong journey into calisthenics.
-
----
-
-## Years of Learning
-
-Learning was almost entirely self-directed.
-
-Resources came from:
-
-- YouTube
-- Online articles
-- Community forums
-- Trial and error
-- Personal experimentation
-
-Progress was slow.
-
-Mistakes were common.
-
-Failures became teachers.
-
-Every new skill required patience, consistency, and persistence.
-
----
-
-## The Missing Product
-
-During those years, many apps were used.
-
-Some tracked workouts.
-
-Some offered programs.
-
-Some built communities.
-
-Some focused on recovery.
-
-None understood the complete journey.
-
-The founder repeatedly thought:
-
-*"Why doesn't one platform bring all of this together?"*
-
-That question eventually became Atlas.
-
----
-
-# Phase 1 — Defining the Vision
-
-Atlas was never intended to be another workout tracker.
-
-The vision expanded into something much larger.
-
-The product should:
-
-- Help users train intelligently.
-- Reduce unnecessary injuries.
-- Build discipline.
-- Celebrate consistency.
-- Grow alongside the individual.
-- Become more valuable every year.
-
-The focus shifted from logging workouts to transforming lives.
-
----
-
-# Phase 2 — Product Philosophy
-
-The next major realization:
-
-Fitness is not about motivation.
-
-Fitness is about identity.
-
-Atlas should reward:
-
-- Consistency
-- Discipline
-- Progress
-- Reflection
-- Helping others
-
-Rather than:
-
-- Popularity
-- Comparison
-- Vanity metrics
-
-This became one of the platform's defining philosophies.
-
----
-
-# Phase 3 — Community Vision
-
-Community should not encourage unhealthy comparison.
-
-Instead:
-
-Beginners learn.
-
-Experienced athletes teach.
-
-Everyone improves together.
-
-Status should come from:
-
-- Consistency
-- Progress
-- Mentorship
-- Positive contributions
-
-Rather than likes or followers.
-
----
-
-# Phase 4 — AI Vision
-
-The AI vision emerged gradually.
-
-Instead of asking:
-
-"How do we add AI?"
-
-The question became:
-
-"How can AI genuinely help someone become healthier over ten years?"
-
-The answer transformed the architecture.
-
-AI became:
-
-- Context-aware
-- Explainable
-- Evidence-based
-- Long-term
-- Personal
-
-Rather than conversational for its own sake.
-
----
-
-# Phase 5 — MVP Definition
-
-The vision was intentionally narrowed.
-
-Rather than building everything immediately, Atlas focused on a strong foundation.
-
-The first release would include:
-
-- Workout logging
-- Custom routines
-- Standard programs
-- Skill tracking
-- Milestones
-- Progress timeline
-- Consistency tracking
-- Community basics
-- Challenges
-
-This created immediate value while generating the data required for future intelligence.
-
----
-
-# Phase 6 — Engineering Direction
-
-Major engineering principles were established.
-
-Examples:
-
-- Modular Monolith
-- Clean Architecture
-- Domain-Driven Design
-- .NET Backend
-- Flutter Mobile
-- PostgreSQL
-- Event-driven thinking
-- AI-ready architecture
-
-Every decision favored long-term maintainability.
-
----
-
-# Phase 7 — Data Strategy
-
-A significant realization emerged.
-
-Atlas's greatest competitive advantage would not be AI models.
-
-It would be data.
-
-Not just more data.
-
-Better data.
-
-Years of meaningful signals describing a person's fitness journey.
-
-This became one of Atlas's strongest strategic advantages.
-
----
-
-# Phase 8 — Business Philosophy
-
-Atlas should not monetize frustration.
-
-Instead:
-
-Provide meaningful value.
-
-Earn trust.
+Update this timeline after major product, architecture, or strategy decisions.
 
 Create transformations.
 

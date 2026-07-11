@@ -1,263 +1,44 @@
-This is the final document.
-
-I don't want this to be a retrospective.
-
-I want it to become **Atlas's book of wisdom**.
-
-Every successful company accumulates knowledge that isn't written in code:
-
-* Mistakes
-* Discoveries
-* Surprises
-* User insights
-* Engineering lessons
-* Leadership lessons
-
-Unfortunately, that knowledge often disappears as people leave.
-
-This document prevents that.
-
-It should become a living document that every new team member reads.
-
----
-
-# `06-founder/lessons.md`
-
-```markdown id="a4m8zs"
 # Lessons
 
-> "Experience is not what happens to us.
-> It is what we learn from what happens."
+## Purpose
 
----
+Capture durable lessons that guide future decisions and prevent repeated mistakes.
 
-# Purpose
+## Strategic Lessons
 
-This document captures the enduring lessons learned throughout Atlas's journey.
+- Build for decades, not demos.
+- Start with user problems, not technology trends.
+- Depth of understanding creates stronger advantage than feature volume.
 
-It serves as the company's institutional memory.
+## Product Lessons
 
-Unlike technical documentation, these lessons describe principles, observations, mistakes, and insights that should guide future decisions.
+- Simplicity improves adoption and consistency.
+- Foundation quality determines long-term velocity.
+- Personalization must be earned through high-quality history.
+- Reflection is a stronger long-term motivator than comparison.
 
-Every lesson recorded here should help future team members avoid repeating the same mistakes.
+## Engineering Lessons
 
-This document is expected to evolve continuously.
+- Architecture is a compounding investment.
+- Premature optimization increases risk.
+- Documentation is part of product quality.
+- Technical debt must be explicit and managed.
 
----
+## AI Lessons
 
-# Planning Phase Lessons
+- Explainability increases trust.
+- Conservative behavior is required under uncertainty.
+- AI assists; users decide.
 
-## Build for Decades, Not Demos
+## Community Lessons
 
-One of the earliest and most influential principles established during Atlas's planning phase.
+- Healthy culture requires explicit system design.
+- Reward contribution and mentorship.
+- Protect psychological safety.
 
-Short-term decisions should never compromise long-term flexibility.
+## Operating Principle
 
-The MVP exists to validate the vision—not to become the final product.
-
-Every architecture decision should preserve future evolution.
-
----
-
-## Start With the Problem
-
-It is tempting to build impressive technology.
-
-Instead, always begin by asking:
-
-"What problem does this solve for the user?"
-
-Technology should always follow purpose.
-
----
-
-## Features Are Easy to Copy
-
-Workout logging can be copied.
-
-Programs can be copied.
-
-User interfaces can be copied.
-
-What is difficult to copy is:
-
-- Trust
-- Community
-- Philosophy
-- Years of accumulated understanding
-- Consistent execution
-
-Competitive advantage comes from depth, not novelty.
-
----
-
-## AI Is Not the Product
-
-Early planning repeatedly reinforced one insight:
-
-Users do not care about AI.
-
-Users care about becoming healthier, stronger, and more consistent.
-
-AI is valuable only when it improves outcomes.
-
----
-
-## Better Data Beats Bigger Models
-
-Large language models will continue improving.
-
-Atlas's true advantage comes from collecting meaningful, high-quality, longitudinal data.
-
-Data quality compounds over time.
-
----
-
-# Product Lessons
-
-## Simplicity Wins
-
-A smaller feature set that solves real problems is more valuable than a large collection of rarely used features.
-
-Complexity should be introduced only when justified by user value.
-
----
-
-## Build the Foundation First
-
-Many ambitious ideas emerged during planning.
-
-The decision was made to focus first on:
-
-- Workout logging
-- Routines
-- Skill tracking
-- Milestones
-- Consistency
-- Community basics
-
-A strong foundation enables future innovation.
-
----
-
-## Personalization Is Earned
-
-Personalization should improve gradually as Atlas learns more about each user.
-
-Users should feel that the application grows with them.
-
----
-
-## Reflection Is More Powerful Than Comparison
-
-External comparison often creates pressure.
-
-Personal reflection creates sustainable motivation.
-
-Atlas should help users become better than yesterday—not better than someone else.
-
----
-
-# Engineering Lessons
-
-## Architecture Is a Long-Term Investment
-
-Architecture should reduce future complexity rather than introduce unnecessary sophistication.
-
-Modular systems enable continuous evolution.
-
----
-
-## Avoid Premature Optimization
-
-Optimize when evidence shows it is necessary.
-
-Not before.
-
-Maintain clarity over cleverness.
-
----
-
-## Documentation Is a Product
-
-Documentation is not a by-product of development.
-
-It is part of the product itself.
-
-Future team members depend on today's documentation.
-
----
-
-## Technical Debt Should Be Intentional
-
-Not all technical debt is harmful.
-
-The important distinction is whether it is:
-
-- Conscious
-- Documented
-- Planned for removal
-
-Unrecognized technical debt is the dangerous kind.
-
----
-
-# AI Lessons
-
-## Explainability Builds Trust
-
-Users should understand why recommendations are made.
-
-Transparency is more valuable than appearing intelligent.
-
----
-
-## Conservative Guidance Is Better Than Confident Mistakes
-
-When uncertainty exists:
-
-Recommend less.
-
-Explain uncertainty.
-
-Avoid overconfidence.
-
-User safety is the priority.
-
----
-
-## Human Judgment Comes First
-
-Atlas recommends.
-
-Users decide.
-
-The application supports human decision-making rather than replacing it.
-
----
-
-# Community Lessons
-
-## Healthy Communities Require Intentional Design
-
-Positive communities do not emerge automatically.
-
-Culture must be cultivated through thoughtful product decisions and moderation.
-
----
-
-## Celebrate Progress
-
-Recognition should emphasize:
-
-- Consistency
-- Learning
-- Improvement
-- Mentorship
-
-Rather than popularity or perfection.
-
----
+Record lessons continuously and use them in planning, design reviews, and post-release retrospectives.
 
 ## Experienced Members Should Lift Others
 
