@@ -8,6 +8,7 @@ This repository is the working home for the product vision, domain model, engine
 
 ## What this repo contains
 
+- High-level working entrypoints in [CLAUDE.md](CLAUDE.md), [ARCHITECTURE.md](ARCHITECTURE.md), [PRODUCT.md](PRODUCT.md), and [CONVENTIONS.md](CONVENTIONS.md)
 - Product strategy and requirements in [docs/01-product](docs/01-product)
 - Domain model, business rules, and event definitions in [docs/02-domain](docs/02-domain)
 - Architecture, engineering standards, and technical guidance in [docs/03-engineering](docs/03-engineering)
