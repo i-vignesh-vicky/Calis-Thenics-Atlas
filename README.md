@@ -11,9 +11,9 @@ This repository is the working home for the product vision, domain model, engine
 - Product strategy and requirements in [docs/01-product](docs/01-product)
 - Domain model, business rules, and event definitions in [docs/02-domain](docs/02-domain)
 - Architecture, engineering standards, and technical guidance in [docs/03-engineering](docs/03-engineering)
-- AI vision and product personalization direction in [docs/04-ai](docs/04-ai)
+- Archived strategy context (foundation, AI, business, founder notes) in [docs/archive](docs/archive)
 - Weekly implementation backlog files in [docs/stories](docs/stories)
-- The central execution roadmap in [PLAN.md](PLAN.md)
+- The central execution roadmap in [docs/stories/PLAN.md](docs/stories/PLAN.md)
 
 ## Primary goals
 
@@ -24,7 +24,7 @@ This repository is the working home for the product vision, domain model, engine
 
 ## Recommended reading order
 
-1. Start with [PLAN.md](PLAN.md) for the execution strategy.
+1. Start with [docs/stories/PLAN.md](docs/stories/PLAN.md) for the execution strategy.
 2. Review [docs/01-product/product-roadmap.md](docs/01-product/product-roadmap.md) and [docs/01-product/functional-requirements.md](docs/01-product/functional-requirements.md) for the product scope.
 3. Use [docs/03-engineering/architecture.md](docs/03-engineering/architecture.md) and [docs/03-engineering/backend.md](docs/03-engineering/backend.md) for technical direction.
 4. Follow the weekly files in [docs/stories](docs/stories) for implementation backlog and delivery steps.
@@ -33,16 +33,12 @@ This repository is the working home for the product vision, domain model, engine
 
 ```text
 .
-├── PLAN.md
 ├── README.md
 ├── docs/
-│   ├── 00-foundation/
 │   ├── 01-product/
 │   ├── 02-domain/
 │   ├── 03-engineering/
-│   ├── 04-ai/
-│   ├── 05-business/
-│   ├── 06-founder/
+│   ├── archive/
 │   └── stories/
 ```
 

@@ -13,13 +13,13 @@ This document is the working execution plan for shipping the Calis-Thenics-Atlas
 
 ## Source of Truth
 
-- [README.md](README.md)
-- [docs/01-product/product-roadmap.md](docs/01-product/product-roadmap.md)
-- [docs/01-product/functional-requirements.md](docs/01-product/functional-requirements.md)
-- [docs/03-engineering/architecture.md](docs/03-engineering/architecture.md)
-- [docs/03-engineering/backend.md](docs/03-engineering/backend.md)
-- [docs/03-engineering/frontend.md](docs/03-engineering/frontend.md)
-- [docs/03-engineering/testing.md](docs/03-engineering/testing.md)
+- [README.md](../../README.md)
+- [docs/01-product/product-roadmap.md](../01-product/product-roadmap.md)
+- [docs/01-product/functional-requirements.md](../01-product/functional-requirements.md)
+- [docs/03-engineering/architecture.md](../03-engineering/architecture.md)
+- [docs/03-engineering/backend.md](../03-engineering/backend.md)
+- [docs/03-engineering/frontend.md](../03-engineering/frontend.md)
+- [docs/03-engineering/testing.md](../03-engineering/testing.md)
 
 ## MVP Scope
 
