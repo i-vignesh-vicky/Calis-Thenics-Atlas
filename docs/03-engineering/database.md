@@ -80,10 +80,9 @@ Relatively stable:
 ### 2. Training Data
 
 The core domain:
-- `workouts` — Individual workout sessions
-- `workout_exercises` — Exercises within a workout
-- `workout_sets` — Sets within an exercise
-- `workout_attempts` — Individual set attempts (reps, weight, duration)
+- `workout_sessions` — Individual workout sessions
+- `workout_exercises` — Exercises within a workout session
+- `workout_sets` — Performed sets within an exercise (reps, weight, duration, RPE)
 - `exercises` — Exercise definitions and variations
 
 ### 3. Program & Routine Data
@@ -158,13 +157,11 @@ Business concepts should be properly normalized, not flattened into JSON.
 
 **Good:**
 ```
-workouts
+workout_sessions
   ↓
 workout_exercises
   ↓
 workout_sets
-  ↓
-workout_attempts
 ```
 
 Normalization preserves flexibility for future features and analysis.
@@ -287,12 +284,12 @@ ADD CONSTRAINT check_workout_has_data
 CHECK (exercise_count > 0);
 
 -- Ensure progressive weight
-ALTER TABLE workout_attempts
+ALTER TABLE workout_sets
 ADD CONSTRAINT check_valid_weight
 CHECK (weight_kg >= 0);
 
--- Ensure valid attempts
-ALTER TABLE workout_attempts
+-- Ensure valid sets
+ALTER TABLE workout_sets
 ADD CONSTRAINT check_valid_reps
 CHECK (reps > 0 OR duration_seconds > 0);
 

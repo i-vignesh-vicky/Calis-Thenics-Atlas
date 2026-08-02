@@ -50,13 +50,14 @@ The backend must prioritize **maintainability, correctness, and extensibility** 
 
 ### Authentication & Authorization
 
-**Mechanisms:**
-- JWT with short-lived access tokens
-- Refresh tokens with rotation
+**MVP Mechanisms:**
+- JWT with short-lived access tokens (15–60 min)
+- Refresh tokens with rotation (up to 30 days)
 - HTTPS mandatory for all tokens
-- OAuth 2.0 integration (Google, Apple)
+- Email/password authentication
 
-**Future:**
+**Future (v2.0+):**
+- OAuth 2.0 integration (Google, Apple)
 - Passkeys
 - Enterprise SSO
 

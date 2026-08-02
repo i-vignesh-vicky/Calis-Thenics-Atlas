@@ -48,10 +48,11 @@ Security is **proactive**, not reactive.
 ### Password Requirements
 
 - Minimum length: 8 characters
+- Must include uppercase, lowercase, and numeric characters
 - Common password detection (check against breached password databases)
 - Secure password hashing: Argon2 or bcrypt
 - Passwords never stored in plaintext
-- Password reset requires verification (email, SMS, etc.)
+- Password reset requires email verification
 
 ### JWT (JSON Web Tokens)
 

@@ -4,6 +4,13 @@
 
 This document defines the high-level system architecture for Calis-Thenics-Atlas. It explains how the system is organized, the rationale for each structural decision, and how the platform can evolve from MVP to a global AI-powered fitness ecosystem.
 
+## Related Documents
+
+- [backend.md](backend.md) — Implementation-level backend details, project structure, and technology stack.
+- [frontend.md](frontend.md) — Mobile app architecture and state management.
+- [database.md](database.md) — Schema design, naming, and data strategy.
+- [api-guidelines.md](api-guidelines.md) — API design conventions and patterns.
+
 ## Guiding Philosophy
 
 **We are building Version 1.0 of a platform designed for the next decade, not an MVP to be discarded.**
