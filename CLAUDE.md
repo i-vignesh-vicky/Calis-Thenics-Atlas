@@ -25,7 +25,8 @@ Always resolve decisions using this priority order:
 5. [docs/01-product/features](docs/01-product/features)
 6. [docs/02-domain/domain-model.md](docs/02-domain/domain-model.md)
 7. [docs/03-engineering](docs/03-engineering)
-8. [docs/stories/PLAN.md](docs/stories/PLAN.md)
+8. [docs/delivery/mvp/scope.md](docs/delivery/mvp/scope.md)
+9. [docs/delivery/development-status.md](docs/delivery/development-status.md)
 
 If two docs conflict, do not guess. Call out the conflict and propose the minimum update to restore one truth.
 
@@ -139,7 +140,7 @@ A change is done only when:
 
 ## Weekly Delivery Rhythm
 
-Use [docs/stories/PLAN.md](docs/stories/PLAN.md) as the master roadmap.
+Use [docs/delivery/mvp/scope.md](docs/delivery/mvp/scope.md) as the MVP scope reference and [docs/delivery/development-status.md](docs/delivery/development-status.md) as the current execution tracker.
 
 For each week:
 
