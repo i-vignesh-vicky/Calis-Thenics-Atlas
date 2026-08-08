@@ -69,6 +69,20 @@ The frontend is **NOT** responsible for:
 
 ---
 
+## Technology Decisions
+
+| Concern | Choice | Rationale |
+|---------|--------|-----------|
+| Framework | Flutter (stable channel) | Cross-platform, single codebase, strong UI toolkit |
+| Language | Dart | Flutter's native language; strong typing, async support |
+| Routing | **go_router** | Declarative routing, deep-link support, well-maintained; consistent with ARCHITECTURE.md |
+| CI | GitHub Actions | Integrated with the GitHub repository |
+
+**go_router** is the project-wide routing package. Do not introduce Navigator 1.0 push/pop patterns
+for feature navigation — all routes are declared in the central router configuration under `lib/app/`.
+
+---
+
 ## Architecture & Organization
 
 ### Project Structure

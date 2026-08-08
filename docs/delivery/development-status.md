@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-08-08
 **Current week:** Pre-implementation (planning complete)
-**Current milestone:** M1 — Project Bootstrapped
+**Current milestone:** M1 — Foundation
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Epic | Title | Status | Stories |
 |------|-------|--------|---------|
-| epic-01 | Foundation and Project Setup | Todo | STORY-001 to STORY-005B |
+| epic-01 | Foundation and Project Setup | Todo | STORY-001 to STORY-005C |
 | epic-02 | Design System | Todo | STORY-006 to STORY-009 |
 | epic-03 | Authentication | Todo | STORY-010 to STORY-014 |
 | epic-04 | Profile and Onboarding | Todo | STORY-015 to STORY-018 |
@@ -41,12 +41,13 @@ None. Ready to begin Week 01 (epic-01-foundation).
 ## Upcoming (Next 2 Weeks)
 
 **Week 01** — Foundation and Project Setup
-- STORY-001 · Initialize Monorepo Structure
-- STORY-002 · Configure Build Tooling and CI
-- STORY-003 · Add Shared Types Package
-- STORY-004 · Set Up Database and Migration Tooling
-- STORY-005 · Deploy Baseline App to Staging
-- STORY-005B · Add API Gateway and Router Skeleton
+- STORY-001 · Create Repository Skeleton
+- STORY-002 · Add Shared Environment Configuration
+- STORY-003 · Configure Backend Solution Shell
+- STORY-004 · Configure Frontend App Shell
+- STORY-005A · Add CI Workflow for Main and Pull Requests
+- STORY-005B · Add Baseline Smoke Test and Startup Validation
+- STORY-005C · Set Up Database and Migration Tooling
 
 **Week 02** — Design System
 - STORY-006 · Add Design Tokens and Theme Provider
@@ -56,11 +57,24 @@ None. Ready to begin Week 01 (epic-01-foundation).
 
 ---
 
+## Scope Decisions (Week 01)
+
+| Decision | Rationale |
+|----------|-----------|
+| Staging deployment deferred | Priority is a working local environment. Hosting setup moves to the release phase (epic-13) once the core application is stable. Code is pushed to GitHub after each story. |
+| Database setup included in Week 01 (STORY-005C) | EF Core naming conventions, PK strategy, and migrations must be correct from the first entity. Retrofitting is expensive. |
+| Error response shape uses existing api-guidelines.md spec | Shape is already documented. Backend shell wires it as the global exception handler. |
+
+---
+
 ## Open Questions and Risks
 
 | # | Description | Severity | Owner |
 |---|-------------|----------|-------|
 | OQ-01 | FR-SKILL-001 and FR-SKILL-003 (skill tracking) are not fully covered by existing stories. See epic-08 open question. Story may need to be added. | Medium | TBD |
+| OQ-02 | ~~.NET version not pinned.~~ **Resolved:** .NET 10 LTS. Documented in ARCHITECTURE.md and backend.md. | ~~High~~ Closed | — |
+| OQ-03 | ~~CI platform unconfirmed.~~ **Resolved:** GitHub Actions. Documented in ARCHITECTURE.md. | ~~Low~~ Closed | — |
+| OQ-04 | ~~Flutter router not chosen.~~ **Resolved:** go_router. Documented in ARCHITECTURE.md and frontend.md. | ~~Low~~ Closed | — |
 
 ---
 
@@ -74,7 +88,7 @@ None at this time.
 
 | Milestone | Target Week | Description | Status |
 |-----------|-------------|-------------|--------|
-| M1 | Week 01 | Project bootstrapped and deployable to staging | Todo |
+| M1 | Week 01 | Repo builds, CI green, backend health endpoint live locally, frontend shell renders, DB migrations apply | Todo |
 | M2 | Week 06 | Core features (auth, profile, exercises, routines) complete | Todo |
 | M3 | Week 10 | Full feature set complete (workout, history, progress, notifications) | Todo |
 | M4 | Week 14 | Beta build live with smoke tests passing | Todo |
