@@ -1,6 +1,8 @@
 using Atlas.Api.Configuration;
 using Atlas.Api.Middleware;
+using Atlas.Infrastructure.Persistence;
 using Atlas.Shared;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -23,6 +25,11 @@ try
         .BindConfiguration(AppSettings.SectionName)
         .ValidateDataAnnotations()
         .ValidateOnStart();
+
+    builder.Services.AddDbContext<AtlasDbContext>(options =>
+        options
+            .UseNpgsql(builder.Configuration.GetConnectionString("AtlasDb"))
+            .UseSnakeCaseNamingConvention());
 
     builder.Services.AddSingleton<IClock, SystemClock>();
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

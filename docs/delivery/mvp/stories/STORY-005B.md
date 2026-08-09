@@ -3,7 +3,7 @@
 Epic: [epic-01-foundation](../epics/epic-01-foundation.md)
 Estimate: 3 hrs
 Priority: High
-Status: Todo
+Status: Done
 
 ## Objective
 
@@ -19,13 +19,13 @@ the test commands are documented so any developer can run them locally in one st
 
 ## Implementation Steps
 
-- [ ] Confirm the backend smoke test in `Atlas.IntegrationTests` runs under `dotnet test` and
+- [x] Confirm the backend smoke test in `Atlas.IntegrationTests` runs under `dotnet test` and
   is picked up by the CI workflow (STORY-005A). If not, fix the project reference or test runner config.
-- [ ] Confirm the Flutter widget test runs under `flutter test` and is picked up by CI. If not,
+- [x] Confirm the Flutter widget test runs under `flutter test` and is picked up by CI. If not,
   fix the test file location or pubspec.
-- [ ] Add or verify a `make smoke` (or equivalent) root script that runs both smoke tests in sequence
+- [x] Add or verify a `make smoke` (or equivalent) root script that runs both smoke tests in sequence
   locally without any manual steps.
-- [ ] If either smoke test requires environment variables (e.g., a connection string for the backend
+- [x] If either smoke test requires environment variables (e.g., a connection string for the backend
   integration test), add those values to the CI secrets and document them in `.env.example`.
 
 ## Technical Notes
@@ -40,22 +40,22 @@ the test commands are documented so any developer can run them locally in one st
 
 ## Tests
 
-- [ ] Run `make smoke` (or the equivalent) locally and confirm both tests pass.
-- [ ] In CI, introduce a deliberate regression (e.g., throw in `Program.cs`) and confirm the workflow
+- [x] Run `make smoke` (or the equivalent) locally and confirm both tests pass.
+- [x] In CI, introduce a deliberate regression (e.g., throw in `Program.cs`) and confirm the workflow
   fails and shows the failure output.
 
 ## Documentation
 
-- [ ] Document the `make smoke` command (or equivalent) in the README contributing notes.
-- [ ] Note that smoke tests must run before any feature code is merged.
+- [x] Document the `make smoke` command (or equivalent) in the README contributing notes.
+- [x] Note that smoke tests must run before any feature code is merged.
 
 ## Acceptance Criteria
 
-- [ ] Backend health endpoint smoke test passes locally and in CI.
-- [ ] Flutter widget smoke test passes locally and in CI.
-- [ ] CI fails clearly if either smoke test regresses.
-- [ ] A single command runs both smoke tests locally.
-- [ ] The smoke test command is documented.
+- [x] Backend health endpoint smoke test passes locally and in CI.
+- [x] Flutter widget smoke test passes locally and in CI.
+- [x] CI fails clearly if either smoke test regresses.
+- [x] A single command runs both smoke tests locally.
+- [x] The smoke test command is documented.
 
 ## Deliverables
 

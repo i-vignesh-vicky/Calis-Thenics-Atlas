@@ -1,5 +1,7 @@
 # Calis-Thenics-Atlas
 
+[![CI](https://github.com/YOUR_ORG/Calis-Thenics-Atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/Calis-Thenics-Atlas/actions/workflows/ci.yml)
+
 An intelligent calisthenics fitness platform that helps users train consistently, improve over time,
 and stay motivated through personalized guidance.
 
@@ -181,8 +183,52 @@ cd frontend && flutter test
 | `make install` | Restore backend (`dotnet restore`) and frontend (`flutter pub get`) dependencies |
 | `make build` | Build backend (Release) and frontend (debug APK) |
 | `make test` | Run all backend and frontend tests |
+| `make smoke` | Run only the startup smoke tests (health endpoint + Flutter widget test) |
 | `make lint` | Run `dotnet format --verify-no-changes` and `dart analyze && dart format` |
-| `make db-up` | Start local PostgreSQL via Docker Compose (stub until STORY-005C) |
+| `make db-up` | Start local PostgreSQL via Docker Compose |
+| `make db-migrate` | Apply pending EF Core migrations to the local database |
+| `make db-reset` | Tear down and recreate the local database, then re-apply all migrations |
+
+---
+
+## Contributing
+
+### Smoke tests
+
+Before merging any feature code, run both smoke tests locally:
+
+```bash
+make smoke
+```
+
+This runs:
+1. **Backend smoke test** — boots the API in-process and asserts `GET /api/v1/health` returns `200 OK`
+2. **Flutter smoke test** — pumps the root `App` widget and confirms it renders without errors
+
+Both tests must pass. The same commands run in CI on every pull request and push to `main`. A failing smoke test blocks merges.
+
+### Database (local)
+
+```bash
+# Start PostgreSQL
+make db-up
+
+# Apply pending migrations
+make db-migrate
+
+# Full reset (drops and recreates the database, then re-applies all migrations)
+make db-reset
+```
+
+Migrations live in `backend/src/Atlas.Infrastructure/Migrations/`. To create a new migration after changing the domain model:
+
+```bash
+cd backend && dotnet ef migrations add <MigrationName> \
+  --project src/Atlas.Infrastructure \
+  --startup-project src/Atlas.Api
+```
+
+The `dotnet-ef` tool is a local tool declared in `backend/.config/dotnet-tools.json`. Run `dotnet tool restore` inside `backend/` if the command is not found.
 
 ---
 

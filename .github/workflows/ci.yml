@@ -1,0 +1,71 @@
+# CI pipeline — runs on every push to main and every pull request targeting main.
+#
+# Steps:
+#   1. Build and test the .NET backend (Release configuration)
+#   2. Analyze and test the Flutter frontend
+#
+# Failure behaviour: any non-zero exit code fails the workflow and blocks the PR.
+# SDK versions are pinned here and must stay in sync with the README prerequisites.
+#
+# Secrets required:
+#   APP_JWT_SECRET   — any non-empty string works for CI; set in repo Settings → Secrets
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend — build & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore dependencies
+        run: dotnet restore backend/
+
+      - name: Build
+        run: dotnet build backend/ --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test backend/ --no-build --verbosity normal
+        env:
+          App__JwtSecret: ci-test-secret-at-least-32-chars-long
+          App__JwtIssuer: atlas-ci
+          App__JwtAudience: atlas-ci
+
+  frontend:
+    name: Frontend — analyze & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: frontend
+
+      - name: Analyze
+        run: flutter analyze
+        working-directory: frontend
+
+      - name: Test
+        run: flutter test
+        working-directory: frontend

@@ -1,4 +1,4 @@
-.PHONY: install build test db-up lint
+.PHONY: install build test smoke db-up db-migrate db-reset lint
 
 # Windows: `make` requires Chocolatey (choco install make), Git Bash, or WSL.
 
@@ -38,8 +38,20 @@ test:
 		echo "Frontend not yet initialized — see STORY-004"; \
 	fi
 
+smoke:
+	@echo "--- Backend smoke test ---"
+	@dotnet test backend/ --filter "FullyQualifiedName~HealthEndpointTests" --verbosity normal
+	@echo "--- Frontend smoke test ---"
+	@cd frontend && flutter test test/app_smoke_test.dart
+
 db-up:
-	@echo "docker-compose.yml not yet added (see STORY-005C). Run: docker compose up -d"
+	@docker compose up -d postgres
+
+db-migrate:
+	@cd backend && dotnet ef database update --project src/Atlas.Infrastructure --startup-project src/Atlas.Api
+
+db-reset:
+	@docker compose down -v && docker compose up -d postgres && sleep 2 && cd backend && dotnet ef database update --project src/Atlas.Infrastructure --startup-project src/Atlas.Api
 
 lint:
 	@if [ -f backend/Atlas.slnx ]; then \

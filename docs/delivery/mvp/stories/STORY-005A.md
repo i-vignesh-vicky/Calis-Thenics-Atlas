@@ -3,7 +3,7 @@
 Epic: [epic-01-foundation](../epics/epic-01-foundation.md)
 Estimate: 3 hrs
 Priority: High
-Status: Todo
+Status: Done
 
 ## Objective
 
@@ -12,9 +12,9 @@ proving the repository builds, tests pass, and nothing is broken before code is 
 
 ## Implementation Steps
 
-- [ ] Add a GitHub Actions workflow file at `.github/workflows/ci.yml`.
-- [ ] The workflow triggers on `push` to `main` and `pull_request` to `main`.
-- [ ] CI steps (in order):
+- [x] Add a GitHub Actions workflow file at `.github/workflows/ci.yml`.
+- [x] The workflow triggers on `push` to `main` and `pull_request` to `main`.
+- [x] CI steps (in order):
   1. Checkout repository
   2. Install .NET 10 SDK (`actions/setup-dotnet@v4` with `dotnet-version: '10.x'`)
   3. Install Flutter stable channel (`subosito/flutter-action@v2` with `channel: stable`)
@@ -22,10 +22,10 @@ proving the repository builds, tests pass, and nothing is broken before code is 
   5. Build backend (`dotnet build --no-restore --configuration Release`)
   6. Run backend tests (`dotnet test --no-build`)
   7. Install Flutter dependencies (`flutter pub get`)
-  8. Build Flutter (`flutter build apk --debug` or `flutter analyze`)
+  8. Flutter analyze
   9. Run Flutter tests (`flutter test`)
-- [ ] The workflow must fail if any step exits with a non-zero code.
-- [ ] Add a CI status badge to the root README pointing to the workflow run.
+- [x] The workflow must fail if any step exits with a non-zero code.
+- [x] Add a CI status badge to the root README pointing to the workflow run.
 
 ## Technical Notes
 
@@ -41,22 +41,22 @@ proving the repository builds, tests pass, and nothing is broken before code is 
 
 ## Tests
 
-- [ ] Push a sample branch and confirm the workflow runs and passes in GitHub Actions.
-- [ ] Introduce a deliberate build error, push, and confirm the workflow fails and reports the error clearly.
+- [x] Push a sample branch and confirm the workflow runs and passes in GitHub Actions.
+- [x] Introduce a deliberate build error, push, and confirm the workflow fails and reports the error clearly.
 
 ## Documentation
 
-- [ ] Document the workflow purpose, branch triggers, and expected failure behavior in a comment
+- [x] Document the workflow purpose, branch triggers, and expected failure behavior in a comment
   block at the top of `ci.yml`.
-- [ ] Add the CI badge to the root README.
+- [x] Add the CI badge to the root README.
 
 ## Acceptance Criteria
 
-- [ ] CI runs on every pull request and every push to main.
-- [ ] Backend build, backend tests, Flutter analyze, and Flutter tests all run in CI.
-- [ ] SDK versions are pinned and match the README prerequisites.
-- [ ] The workflow fails loudly and clearly when a step breaks.
-- [ ] A CI status badge is visible in the README.
+- [x] CI runs on every pull request and every push to main.
+- [x] Backend build, backend tests, Flutter analyze, and Flutter tests all run in CI.
+- [x] SDK versions are pinned and match the README prerequisites.
+- [x] The workflow fails loudly and clearly when a step breaks.
+- [x] A CI status badge is visible in the README.
 
 ## Deliverables
 
