@@ -3,7 +3,7 @@
 Epic: [epic-01-foundation](../epics/epic-01-foundation.md)
 Estimate: 3 hrs
 Priority: High
-Status: Todo
+Status: Done
 
 ## Objective
 
@@ -12,7 +12,7 @@ story has a stable home for its files.
 
 ## Implementation Steps
 
-- [ ] Create the top-level folder structure:
+- [x] Create the top-level folder structure:
   ```
   /
     backend/        — ASP.NET Core solution (STORY-003, STORY-005C)
@@ -24,7 +24,7 @@ story has a stable home for its files.
   ```
   The `infrastructure/` folder is deferred — nothing is assigned to it in Week 1.
   Create it only when a concrete artifact (e.g. Terraform, Helm) requires a home.
-- [ ] Add a `global.json` at the repository root pinning the .NET SDK version:
+- [x] Add a `global.json` at the repository root pinning the .NET SDK version:
   ```json
   {
     "sdk": {
@@ -34,22 +34,21 @@ story has a stable home for its files.
   }
   ```
   This enforces the same SDK locally and in CI without relying solely on README prose.
-- [ ] Add a `.gitignore` covering .NET, Flutter, macOS, Windows, JetBrains, and VS Code artifacts.
-- [ ] Add a `Makefile` at the repository root with commands for the full developer lifecycle.
+- [x] Add a `.gitignore` covering .NET, Flutter, macOS, Windows, JetBrains, and VS Code artifacts.
+- [x] Add a `Makefile` at the repository root with commands for the full developer lifecycle.
   **Windows prerequisite:** `make` is not in the Windows PATH by default. Install via
   Chocolatey (`choco install make`) or use Git Bash / WSL where `make` is available.
   Document this in the README prerequisites section.
   - `make install` — restore all dependencies (`dotnet restore` + `flutter pub get`)
   - `make build` — build backend and frontend (`dotnet build` + `flutter build apk --debug`)
   - `make test` — run all tests (`dotnet test` + `flutter test`)
-  - `make db-up` — stub that prints a clear message until STORY-005C is complete:
-    `@echo "docker-compose.yml not yet added (see STORY-005C). Run: docker compose up -d"`
+  - `make db-up` — now wired to `docker compose up -d postgres` (STORY-005C completed)
   - `make lint` — run linters:
     - Backend: `dotnet format --verify-no-changes` (built into the .NET SDK; no extra install)
     - Frontend: `dart analyze && dart format --set-exit-if-changed .`
-- [ ] Add a root `.editorconfig` enforcing consistent indentation (2 spaces for Dart, 4 for C#),
+- [x] Add a root `.editorconfig` enforcing consistent indentation (2 spaces for Dart, 4 for C#),
   LF line endings, and UTF-8 encoding. This keeps diffs clean across editors and OSes.
-- [ ] Update the root `README.md`:
+- [x] Update the root `README.md`:
   - Remove or fix any links that no longer resolve (e.g. `docs/stories/PLAN.md`,
     `docs/03-engineering/architecture.md`) — replace with current paths or remove entirely.
   - Add: folder layout and the purpose of each top-level directory.
@@ -72,26 +71,26 @@ story has a stable home for its files.
 
 ## Verification (Manual)
 
-- [ ] Clone the repo on a clean machine (or clean shell); confirm `make install`, `make build`,
+- [x] Clone the repo on a clean machine (or clean shell); confirm `make install`, `make build`,
   `make lint`, and `make test` each run without path errors.
-- [ ] Run `make db-up`; confirm it prints the stub message and exits cleanly (exit code 0).
-- [ ] Confirm all README links resolve to real files in the repository.
-- [ ] Confirm `global.json` causes `dotnet --version` to report the pinned version.
+- [x] Run `make db-up`; wired to docker compose (STORY-005C superseded the stub).
+- [x] Confirm all README links resolve to real files in the repository.
+- [x] Confirm `global.json` causes `dotnet --version` to report the pinned version.
 
 ## Documentation
 
-- [ ] README: folder layout, prerequisites, and developer workflow.
+- [x] README: folder layout, prerequisites, and developer workflow.
 
 ## Acceptance Criteria
 
-- [ ] The repository has a clear folder structure matching the MVP architecture.
-- [ ] `global.json` is present at the repo root and pins .NET 10.
-- [ ] A `.gitignore` is present and covers .NET, Flutter, and common IDE artifacts.
-- [ ] A `.editorconfig` is present and enforces indentation and encoding rules.
-- [ ] Root Makefile targets exist for `install`, `build`, `test`, `db-up`, and `lint`.
-- [ ] `make db-up` prints a clear stub message and exits without error.
-- [ ] `make lint` runs `dotnet format --verify-no-changes` and `dart analyze`/`dart format`.
-- [ ] The README documents prerequisites (including the `make` Windows install note),
+- [x] The repository has a clear folder structure matching the MVP architecture.
+- [x] `global.json` is present at the repo root and pins .NET 10.
+- [x] A `.gitignore` is present and covers .NET, Flutter, and common IDE artifacts.
+- [x] A `.editorconfig` is present and enforces indentation and encoding rules.
+- [x] Root Makefile targets exist for `install`, `build`, `test`, `db-up`, and `lint`.
+- [x] `make db-up` wired to `docker compose up -d postgres` (STORY-005C completed).
+- [x] `make lint` runs `dotnet format --verify-no-changes` and `dart analyze`/`dart format`.
+- [x] The README documents prerequisites (including the `make` Windows install note),
   folder layout, and developer workflow. All README links resolve.
 
 ## Deliverables

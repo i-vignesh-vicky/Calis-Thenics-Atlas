@@ -1,8 +1,8 @@
 # Development Status
 
-**Last updated:** 2026-08-08
-**Current week:** Pre-implementation (planning complete)
-**Current milestone:** M1 — Foundation
+**Last updated:** 2026-08-09
+**Current week:** Week 01 complete — transitioning to Week 02
+**Current milestone:** M1 — Foundation (complete)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Epic | Title | Status | Stories |
 |------|-------|--------|---------|
-| epic-01 | Foundation and Project Setup | Todo | STORY-001 to STORY-005C |
+| epic-01 | Foundation and Project Setup | Done | STORY-001 to STORY-005C |
 | epic-02 | Design System | Todo | STORY-006 to STORY-009 |
 | epic-03 | Authentication | Todo | STORY-010 to STORY-014 |
 | epic-04 | Profile and Onboarding | Todo | STORY-015 to STORY-018 |
@@ -28,26 +28,27 @@
 
 ## Completed Stories
 
-None yet. Planning phase complete as of 2026-08-08.
+**Week 01 — epic-01-foundation** (completed 2026-08-09)
+
+| Story | Title | Notes |
+|-------|-------|-------|
+| STORY-001 | Create Repository Skeleton | All deliverables present: folder structure, global.json, .gitignore, .editorconfig, Makefile, README |
+| STORY-002 | Add Shared Environment Configuration | .env.example, AppSettings with ValidateOnStart, frontend env.dart, README local-setup section |
+| STORY-003 | Configure Backend Solution Shell | 6 src projects + 3 test projects, health endpoint, IClock, GlobalExceptionHandler, Serilog, arch tests |
+| STORY-004 | Configure Frontend App Shell | Flutter app with go_router, 5-tab shell, HomeScreen placeholder, flutter_dotenv-free env accessor, smoke test |
+| STORY-005A | Add CI Workflow | .github/workflows/ci.yml — backend and frontend jobs, JWT secrets passed via env, CI badge in README |
+| STORY-005B | Add Baseline Smoke Test | Backend HealthEndpointTests (WebApplicationFactory), Flutter app_smoke_test, make smoke target |
+| STORY-005C | Set Up Database and Migration Tooling | docker-compose.yml, AtlasDbContext, UuidV7ValueGenerator, dotnet-tools.json, InitialCreate migration |
 
 ---
 
 ## In Progress
 
-None. Ready to begin Week 01 (epic-01-foundation).
+None.
 
 ---
 
 ## Upcoming (Next 2 Weeks)
-
-**Week 01** — Foundation and Project Setup
-- STORY-001 · Create Repository Skeleton
-- STORY-002 · Add Shared Environment Configuration
-- STORY-003 · Configure Backend Solution Shell
-- STORY-004 · Configure Frontend App Shell
-- STORY-005A · Add CI Workflow for Main and Pull Requests
-- STORY-005B · Add Baseline Smoke Test and Startup Validation
-- STORY-005C · Set Up Database and Migration Tooling
 
 **Week 02** — Design System
 - STORY-006 · Add Design Tokens and Theme Provider
@@ -61,9 +62,22 @@ None. Ready to begin Week 01 (epic-01-foundation).
 
 | Decision | Rationale |
 |----------|-----------|
-| Staging deployment deferred | Priority is a working local environment. Hosting setup moves to the release phase (epic-13) once the core application is stable. Code is pushed to GitHub after each story. |
+| Staging deployment deferred | Priority is a working local environment. Hosting setup moves to the release phase (epic-13) once the core application is stable. |
 | Database setup included in Week 01 (STORY-005C) | EF Core naming conventions, PK strategy, and migrations must be correct from the first entity. Retrofitting is expensive. |
 | Error response shape uses existing api-guidelines.md spec | Shape is already documented. Backend shell wires it as the global exception handler. |
+| AppSettings in Atlas.Api, not Atlas.Shared | AppSettings references ASP.NET IOptions which would introduce a framework dependency into Atlas.Shared, violating clean architecture. Placed in Atlas.Api.Configuration instead. |
+| Frontend env via --dart-define, not flutter_dotenv | Compile-time flags avoid shipping a .env file with the release binary. Simpler than a runtime loader for MVP. |
+| UUIDNext 4.0.0 (not 3.x) | Version 3.1.0 does not exist; NuGet resolved to 4.0.0. Pin updated. Enum value is `Database.PostgreSql` (not `PostgreSQL` as shown in NuGet docs). |
+
+---
+
+## Technical Debt
+
+| ID | Description | Severity | Introduced |
+|----|-------------|----------|------------|
+| TD-001 | No isolated unit test for AppSettings startup validation with a missing key. The failure path is exercised only implicitly via the integration smoke test. A discrete unit test would make the contract explicit. | Low | Week 01 (STORY-002) |
+| TD-002 | CI badge in README uses `YOUR_ORG` placeholder. Must be replaced with the actual GitHub org/username once the repo is pushed and the badge URL is confirmed. | Low | Week 01 (STORY-005A) |
+| ~~TD-003~~ | ~~Flutter platform directories (android/, ios/) are not committed.~~ **Resolved (2026-08-09):** Generated via `flutter create --org com.calisthenicsatlas --project-name atlas --platforms android,ios .` and committed. Platform build artifacts remain gitignored by `android/.gitignore` and `ios/.gitignore`. | ~~Low~~ Closed | Week 01 (STORY-004) |
 
 ---
 
@@ -80,7 +94,7 @@ None. Ready to begin Week 01 (epic-01-foundation).
 
 ## Blockers
 
-None at this time.
+None.
 
 ---
 
@@ -88,7 +102,7 @@ None at this time.
 
 | Milestone | Target Week | Description | Status |
 |-----------|-------------|-------------|--------|
-| M1 | Week 01 | Repo builds, CI green, backend health endpoint live locally, frontend shell renders, DB migrations apply | Todo |
+| M1 | Week 01 | Repo builds, CI green, backend health endpoint live locally, frontend shell renders, DB migrations apply | Done |
 | M2 | Week 06 | Core features (auth, profile, exercises, routines) complete | Todo |
 | M3 | Week 10 | Full feature set complete (workout, history, progress, notifications) | Todo |
 | M4 | Week 14 | Beta build live with smoke tests passing | Todo |

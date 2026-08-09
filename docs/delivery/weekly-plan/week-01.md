@@ -2,6 +2,8 @@
 
 **Goal:** Initialize the monorepo, configure tooling, and produce a working skeleton that runs locally and passes CI.
 
+**Status:** Complete (2026-08-09)
+
 **Epic:** [epic-01-foundation](../mvp/epics/epic-01-foundation.md)
 
 ## Stories This Week
@@ -36,13 +38,13 @@ STORY-005A and STORY-005B are last — they need all other pieces to wire togeth
 
 ## Exit Criteria
 
-- Monorepo builds without errors on a clean checkout.
-- Backend starts locally and the health endpoint returns 200.
-- Frontend app renders the landing screen without runtime errors.
-- Database migrations run cleanly against a local PostgreSQL instance.
-- CI runs on every push and pull request and reports pass or fail.
-- A smoke test exercises the health endpoint in CI.
-- All changes are committed and pushed to GitHub.
+- [x] Monorepo builds without errors on a clean checkout.
+- [x] Backend starts locally and the health endpoint returns 200.
+- [x] Frontend app renders the landing screen without runtime errors.
+- [x] Database migrations run cleanly against a local PostgreSQL instance.
+- [x] CI runs on every push and pull request and reports pass or fail.
+- [x] A smoke test exercises the health endpoint in CI.
+- [ ] All changes are committed and pushed to GitHub. *(Branch `feat/w1-project-foundation` is up to date with remote. Pending: merge PR to main.)*
 
 ## Scope Notes
 
