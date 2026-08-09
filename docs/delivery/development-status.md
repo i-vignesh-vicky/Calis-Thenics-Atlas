@@ -76,7 +76,7 @@ None.
 | ID | Description | Severity | Introduced |
 |----|-------------|----------|------------|
 | TD-001 | No isolated unit test for AppSettings startup validation with a missing key. The failure path is exercised only implicitly via the integration smoke test. A discrete unit test would make the contract explicit. | Low | Week 01 (STORY-002) |
-| TD-002 | CI badge in README uses `YOUR_ORG` placeholder. Must be replaced with the actual GitHub org/username once the repo is pushed and the badge URL is confirmed. | Low | Week 01 (STORY-005A) |
+| ~~TD-002~~ | ~~CI badge in README uses `YOUR_ORG` placeholder.~~ **Resolved (2026-08-09):** Replaced with `i-vignesh-vicky`. Badge URL: `https://github.com/i-vignesh-vicky/Calis-Thenics-Atlas/actions/workflows/ci.yml` | ~~Low~~ Closed | Week 01 (STORY-005A) |
 | ~~TD-003~~ | ~~Flutter platform directories (android/, ios/) are not committed.~~ **Resolved (2026-08-09):** Generated via `flutter create --org com.calisthenicsatlas --project-name atlas --platforms android,ios .` and committed. Platform build artifacts remain gitignored by `android/.gitignore` and `ios/.gitignore`. | ~~Low~~ Closed | Week 01 (STORY-004) |
 
 ---

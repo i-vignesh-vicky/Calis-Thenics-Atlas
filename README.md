@@ -1,6 +1,6 @@
 # Calis-Thenics-Atlas
 
-[![CI](https://github.com/YOUR_ORG/Calis-Thenics-Atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/Calis-Thenics-Atlas/actions/workflows/ci.yml)
+[![CI](https://github.com/i-vignesh-vicky/Calis-Thenics-Atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/i-vignesh-vicky/Calis-Thenics-Atlas/actions/workflows/ci.yml)
 
 An intelligent calisthenics fitness platform that helps users train consistently, improve over time,
 and stay motivated through personalized guidance.
