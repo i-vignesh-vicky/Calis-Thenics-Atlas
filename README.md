@@ -1,69 +1,112 @@
 # Calis-Thenics-Atlas
 
-Calis-Thenics Atlas is an ambitious product and engineering planning repository for an intelligent fitness platform that helps users train consistently, improve over time, and stay motivated through personalized guidance.
+An intelligent calisthenics fitness platform that helps users train consistently, improve over time,
+and stay motivated through personalized guidance.
 
-## Overview
-
-This repository is the working home for the product vision, domain model, engineering decisions, and execution backlog for the Calis-Thenics Atlas MVP. It is designed to help a solo builder or small team move from product thinking to implementation with a clear, practical plan.
-
-## What this repo contains
-
-- High-level working entrypoints in [CLAUDE.md](CLAUDE.md), [ARCHITECTURE.md](ARCHITECTURE.md), [PRODUCT.md](PRODUCT.md), and [CONVENTIONS.md](CONVENTIONS.md)
-- Product strategy and requirements in [docs/01-product](docs/01-product)
-- Domain model, business rules, and event definitions in [docs/02-domain](docs/02-domain)
-- Architecture, engineering standards, and technical guidance in [docs/03-engineering](docs/03-engineering)
-- Archived strategy context (foundation, AI, business, founder notes) in [docs/archive](docs/archive)
-- Weekly implementation backlog files in [docs/stories](docs/stories)
-- The central execution roadmap in [docs/stories/PLAN.md](docs/stories/PLAN.md)
-
-## Primary goals
-
-- Define the MVP clearly and narrowly
-- Turn product requirements into actionable engineering work
-- Break delivery into weekly slices that can be implemented incrementally
-- Keep the repository useful as both a planning artifact and an execution guide
-
-## Recommended reading order
-
-1. Start with [docs/stories/PLAN.md](docs/stories/PLAN.md) for the execution strategy.
-2. Review [docs/01-product/product-roadmap.md](docs/01-product/product-roadmap.md) and [docs/01-product/functional-requirements.md](docs/01-product/functional-requirements.md) for the product scope.
-3. Use [docs/03-engineering/architecture.md](docs/03-engineering/architecture.md) and [docs/03-engineering/backend.md](docs/03-engineering/backend.md) for technical direction.
-4. Follow the weekly files in [docs/stories](docs/stories) for implementation backlog and delivery steps.
+---
 
 ## Repository structure
 
-```text
+```
 .
-├── README.md
-├── docs/
-│   ├── 01-product/
-│   ├── 02-domain/
-│   ├── 03-engineering/
-│   ├── archive/
-│   └── stories/
+├── backend/          — ASP.NET Core solution (Clean Architecture, modular monolith)
+├── frontend/         — Flutter mobile application
+├── shared/           — Cross-platform shared assets and contracts (future use)
+├── docs/             — Product, domain, and engineering documentation
+│   ├── 01-product/   — Requirements and roadmap
+│   ├── 02-domain/    — Domain model and business rules
+│   ├── 03-engineering/ — Architecture, API, testing, and coding standards
+│   └── delivery/     — Epics, stories, weekly plan, and development status
+├── .github/
+│   └── workflows/    — GitHub Actions CI pipeline
+├── .editorconfig     — Editor indentation and encoding rules
+├── .gitignore        — Ignored build artifacts and local config
+├── global.json       — .NET SDK version pin
+├── Makefile          — Developer lifecycle commands
+├── ARCHITECTURE.md   — Resolved architecture decisions
+├── CLAUDE.md         — AI operating instructions and guardrails
+├── CONVENTIONS.md    — Naming and coding conventions
+└── PRODUCT.md        — Product vision and goals
 ```
 
-## MVP delivery focus
+---
 
-The current execution plan centers on shipping a practical MVP with:
+## Prerequisites
 
-- identity and access
-- user profile and onboarding
-- exercise library
-- routines and programs
-- workout execution and logging
-- progress and milestones
-- notifications, search, and settings
+| Tool | Version | Install |
+|------|---------|---------|
+| .NET SDK | 10 LTS | https://dotnet.microsoft.com/download |
+| Flutter | stable channel | https://docs.flutter.dev/get-started/install |
+| Docker Desktop | latest | https://www.docker.com/products/docker-desktop |
+| `make` | any | **Windows:** `choco install make` (Chocolatey) or use Git Bash / WSL |
 
-## Status
+`global.json` at the repo root enforces the correct .NET SDK version automatically.
 
-This repository is currently focused on planning, documentation, and implementation backlog creation rather than application code. The weekly story files provide the next layer of execution detail for turning the product vision into working software.
+---
 
-## Contributing
+## Local setup
 
-When updating this repository:
+```bash
+# 1. Clone
+git clone <repo-url>
+cd Calis-Thenics-Atlas
 
-- keep the documentation clear and implementation-oriented
-- prefer concise, actionable language over abstract strategy prose
-- ensure weekly backlog files remain practical enough to execute
-- preserve the distinction between product requirements, engineering decisions, and delivery tasks
+# 2. Copy the environment file and fill in local values
+cp .env.example .env
+# Edit .env — all keys marked Required must be set before the app starts.
+# The defaults in .env.example work for local development as-is.
+
+# 3. Install dependencies
+make install
+
+# 4. Start local database
+make db-up
+
+# 5. Run the backend
+cd backend && dotnet run --project Atlas.Api
+
+# 6. Run the frontend
+cd frontend && flutter run
+```
+
+### Environment keys
+
+| Key | Required | Description |
+|-----|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `JWT_SECRET` | Yes | Token signing secret — any string locally |
+| `JWT_ISSUER` | Yes | Token issuer identifier |
+| `JWT_AUDIENCE` | Yes | Token audience identifier |
+| `ASPNETCORE_ENVIRONMENT` | Yes | Must be `Development` locally |
+| `ASPNETCORE_URLS` | Yes | Backend listen URL (`http://localhost:5000`) |
+| `API_BASE_URL` | Yes | Frontend API base (`http://localhost:5000/api/v1`) |
+| `FIREBASE_SERVER_KEY` | No | Push notifications — required from Week 09 |
+| `APNS_KEY_ID` | No | Push notifications — required from Week 09 |
+| `APNS_TEAM_ID` | No | Push notifications — required from Week 09 |
+
+The app throws a clear startup error if any required key is absent. Optional keys enable future features; the app starts without them.
+
+---
+
+## Makefile targets
+
+| Target | Description |
+|--------|-------------|
+| `make install` | Restore backend (`dotnet restore`) and frontend (`flutter pub get`) dependencies |
+| `make build` | Build backend (Release) and frontend (debug APK) |
+| `make test` | Run all backend and frontend tests |
+| `make lint` | Run `dotnet format --verify-no-changes` and `dart analyze && dart format` |
+| `make db-up` | Start local PostgreSQL via Docker Compose (stub until STORY-005C) |
+
+---
+
+## Key documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) — Tech stack decisions and architectural constraints
+- [CLAUDE.md](CLAUDE.md) — AI operating rules and source-of-truth priority order
+- [CONVENTIONS.md](CONVENTIONS.md) — Naming, structure, and coding conventions
+- [docs/03-engineering/backend.md](docs/03-engineering/backend.md) — Backend architecture guide
+- [docs/03-engineering/frontend.md](docs/03-engineering/frontend.md) — Frontend architecture guide
+- [docs/03-engineering/api-guidelines.md](docs/03-engineering/api-guidelines.md) — API design standards
+- [docs/03-engineering/testing.md](docs/03-engineering/testing.md) — Testing strategy and patterns
+- [docs/delivery/development-status.md](docs/delivery/development-status.md) — Current delivery status
