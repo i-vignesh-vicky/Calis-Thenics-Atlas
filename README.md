@@ -63,7 +63,7 @@ make install
 make db-up
 
 # 5. Run the backend
-cd backend && dotnet run --project Atlas.Api
+cd backend && dotnet run --project src/Atlas.Api
 
 # 6. Run the frontend
 cd frontend && flutter run
@@ -85,6 +85,35 @@ cd frontend && flutter run
 | `APNS_TEAM_ID` | No | Push notifications — required from Week 09 |
 
 The app throws a clear startup error if any required key is absent. Optional keys enable future features; the app starts without them.
+
+---
+
+## Backend project structure
+
+```
+backend/
+├── src/
+│   ├── Atlas.Api           — REST endpoints, middleware, host configuration
+│   ├── Atlas.Application   — Commands, queries, handlers (CQRS)
+│   ├── Atlas.Domain        — Entities, value objects, domain logic (no framework refs)
+│   ├── Atlas.Infrastructure — Data access, external integrations
+│   ├── Atlas.Contracts     — DTOs, request/response models, error types
+│   └── Atlas.Shared        — Utilities, IClock, extensions (shared by all layers)
+└── tests/
+    ├── Atlas.UnitTests         — Fast unit tests for domain and application logic
+    ├── Atlas.IntegrationTests  — API and data layer integration tests
+    └── Atlas.ArchitectureTests — Layer dependency enforcement via NetArchTest
+```
+
+**Dependency graph** (arrows = "depends on"):
+
+```
+Atlas.Api → Atlas.Application → Atlas.Domain
+Atlas.Api → Atlas.Infrastructure → Atlas.Domain
+Atlas.Api → Atlas.Contracts
+All layers → Atlas.Shared
+Atlas.Domain → (nothing — zero outbound references)
+```
 
 ---
 

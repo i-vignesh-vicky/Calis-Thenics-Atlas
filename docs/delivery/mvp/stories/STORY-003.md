@@ -3,7 +3,7 @@
 Epic: [epic-01-foundation](../epics/epic-01-foundation.md)
 Estimate: 4 hrs
 Priority: High
-Status: Todo
+Status: Done
 
 ## Objective
 
@@ -12,26 +12,26 @@ logging middleware, and a consistent error response shape — ready for feature 
 
 ## Implementation Steps
 
-- [ ] Create the backend solution file `backend/Atlas.sln` with all six projects:
+- [x] Create the backend solution file `backend/Atlas.slnx` with all six projects:
   - `src/Atlas.Api` — REST endpoints, controllers, middleware
   - `src/Atlas.Application` — commands, queries, handlers
   - `src/Atlas.Domain` — entities, value objects, domain logic (no framework references)
   - `src/Atlas.Infrastructure` — data access, external integrations
   - `src/Atlas.Contracts` — DTOs, request/response models
   - `src/Atlas.Shared` — utilities, constants, extensions
-- [ ] Create the three test projects:
+- [x] Create the three test projects:
   - `tests/Atlas.UnitTests`
   - `tests/Atlas.IntegrationTests`
   - `tests/Atlas.ArchitectureTests`
-- [ ] Set project references: `Api → Application → Domain`; `Api → Infrastructure → Domain`; `Api → Contracts`; all can reference `Shared`.
+- [x] Set project references: `Api → Application → Domain`; `Api → Infrastructure → Domain`; `Api → Contracts`; all can reference `Shared`.
   Domain must not reference any other project.
-- [ ] Add a health endpoint at `GET /api/v1/health` that returns `200 OK` with a minimal JSON payload.
-- [ ] Add Serilog for structured JSON logging and wire a request-logging middleware.
-- [ ] Define the standard error response type in `Atlas.Contracts` matching the shape in `docs/03-engineering/api-guidelines.md`:
+- [x] Add a health endpoint at `GET /api/v1/health` that returns `200 OK` with a minimal JSON payload.
+- [x] Add Serilog for structured JSON logging and wire a request-logging middleware.
+- [x] Define the standard error response type in `Atlas.Contracts` matching the shape in `docs/03-engineering/api-guidelines.md`:
   `{ "error": { "code", "message", "details"[], "traceId", "timestamp" } }`
-- [ ] Add a global exception handler middleware that catches unhandled exceptions and returns the standard error shape with a 500 status.
-- [ ] Add a route grouping pattern (e.g., `MapGroup("/api/v1")`) so future modules mount their routes cleanly.
-- [ ] Add an `IClock` abstraction in `Atlas.Shared` or `Atlas.Domain` to avoid `DateTime.UtcNow` in testable code.
+- [x] Add a global exception handler middleware that catches unhandled exceptions and returns the standard error shape with a 500 status.
+- [x] Add a route grouping pattern (e.g., `MapGroup("/api/v1")`) so future modules mount their routes cleanly.
+- [x] Add an `IClock` abstraction in `Atlas.Shared` or `Atlas.Domain` to avoid `DateTime.UtcNow` in testable code.
 
 ## Technical Notes
 
@@ -45,29 +45,29 @@ logging middleware, and a consistent error response shape — ready for feature 
 
 ## Tests
 
-- [ ] Add a layer dependency test in `Atlas.ArchitectureTests` that asserts `Atlas.Domain` does not reference
+- [x] Add a layer dependency test in `Atlas.ArchitectureTests` that asserts `Atlas.Domain` does not reference
   `Atlas.Infrastructure`, `Atlas.Api`, or `Atlas.Application`.
-- [ ] Add an integration smoke test in `Atlas.IntegrationTests` that boots the API in-process and
+- [x] Add an integration smoke test in `Atlas.IntegrationTests` that boots the API in-process and
   calls `GET /api/v1/health`, asserting `200 OK`.
 
 ## Documentation
 
-- [ ] Document backend start command (`dotnet run --project src/Atlas.Api`) in the README.
-- [ ] Document the project dependency graph in the engineering notes or README.
+- [x] Document backend start command (`dotnet run --project src/Atlas.Api`) in the README.
+- [x] Document the project dependency graph in the engineering notes or README.
 
 ## Acceptance Criteria
 
-- [ ] Solution builds without errors (`dotnet build`).
-- [ ] All six source projects and three test projects exist with correct project references.
-- [ ] `GET /api/v1/health` returns `200 OK`.
-- [ ] Unhandled exceptions return the standard error JSON shape.
-- [ ] `Atlas.Domain` has no dependency on infrastructure or framework packages.
-- [ ] The layer dependency architecture test passes.
-- [ ] The health endpoint smoke test passes.
+- [x] Solution builds without errors (`dotnet build`).
+- [x] All six source projects and three test projects exist with correct project references.
+- [x] `GET /api/v1/health` returns `200 OK`.
+- [x] Unhandled exceptions return the standard error JSON shape.
+- [x] `Atlas.Domain` has no dependency on infrastructure or framework packages.
+- [x] The layer dependency architecture test passes.
+- [x] The health endpoint smoke test passes.
 
 ## Deliverables
 
-- `backend/Atlas.sln` with all projects
+- `backend/Atlas.slnx` with all projects
 - Health endpoint at `GET /api/v1/health`
 - Standard error response type and global exception handler
 - Serilog request logging middleware

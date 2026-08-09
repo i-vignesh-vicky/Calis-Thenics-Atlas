@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Atlas.Api/Atlas.Api.csproj" />
+    <Project Path="src/Atlas.Application/Atlas.Application.csproj" />
+    <Project Path="src/Atlas.Contracts/Atlas.Contracts.csproj" />
+    <Project Path="src/Atlas.Domain/Atlas.Domain.csproj" />
+    <Project Path="src/Atlas.Infrastructure/Atlas.Infrastructure.csproj" />
+    <Project Path="src/Atlas.Shared/Atlas.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Atlas.ArchitectureTests/Atlas.ArchitectureTests.csproj" />
+    <Project Path="tests/Atlas.IntegrationTests/Atlas.IntegrationTests.csproj" />
+    <Project Path="tests/Atlas.UnitTests/Atlas.UnitTests.csproj" />
+  </Folder>
+</Solution>

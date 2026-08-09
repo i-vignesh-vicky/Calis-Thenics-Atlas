@@ -3,7 +3,7 @@
 # Windows: `make` requires Chocolatey (choco install make), Git Bash, or WSL.
 
 install:
-	@if [ -f backend/Atlas.sln ]; then \
+	@if [ -f backend/Atlas.slnx ]; then \
 		dotnet restore backend/; \
 	else \
 		echo "Backend not yet initialized — see STORY-003"; \
@@ -15,7 +15,7 @@ install:
 	fi
 
 build:
-	@if [ -f backend/Atlas.sln ]; then \
+	@if [ -f backend/Atlas.slnx ]; then \
 		dotnet build backend/ --no-restore --configuration Release; \
 	else \
 		echo "Backend not yet initialized — see STORY-003"; \
@@ -27,7 +27,7 @@ build:
 	fi
 
 test:
-	@if [ -f backend/Atlas.sln ]; then \
+	@if [ -f backend/Atlas.slnx ]; then \
 		dotnet test backend/ --no-build; \
 	else \
 		echo "Backend not yet initialized — see STORY-003"; \
@@ -42,7 +42,7 @@ db-up:
 	@echo "docker-compose.yml not yet added (see STORY-005C). Run: docker compose up -d"
 
 lint:
-	@if [ -f backend/Atlas.sln ]; then \
+	@if [ -f backend/Atlas.slnx ]; then \
 		dotnet format backend/ --verify-no-changes; \
 	else \
 		echo "Backend not yet initialized — see STORY-003"; \
