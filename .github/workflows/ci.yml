@@ -39,7 +39,7 @@ jobs:
         run: dotnet build backend/ --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test backend/ --no-build --verbosity normal
+        run: dotnet test backend/ --no-build --configuration Release --verbosity normal
         env:
           App__JwtSecret: ci-test-secret-at-least-32-chars-long
           App__JwtIssuer: atlas-ci
