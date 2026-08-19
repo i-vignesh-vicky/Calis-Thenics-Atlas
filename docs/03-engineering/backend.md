@@ -16,7 +16,9 @@ The backend must prioritize **maintainability, correctness, and extensibility** 
 
 ## Technology Stack
 
-### Runtime: ASP.NET Core
+### Runtime: ASP.NET Core — .NET 10 LTS
+
+**Version:** .NET 10 LTS (long-term support)
 
 **Why:**
 - High performance
