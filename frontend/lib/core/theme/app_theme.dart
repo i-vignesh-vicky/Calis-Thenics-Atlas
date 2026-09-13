@@ -49,7 +49,7 @@ abstract final class AppTheme {
           );
         }),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: const Color(0xFF141414),
         elevation: 0,
         shape: RoundedRectangleBorder(
