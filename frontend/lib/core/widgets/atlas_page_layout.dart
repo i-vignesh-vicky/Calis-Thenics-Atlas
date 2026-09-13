@@ -39,6 +39,7 @@ class AtlasPageLayout extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       body: SafeArea(
         top: !hasAppBar && applyTopSafeArea,
+        bottom: false,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: body,

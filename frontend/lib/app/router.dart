@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/constants/app_spacing.dart';
 import '../core/widgets/atlas_page_layout.dart';
 import '../features/home/screens/home_screen.dart';
 import 'shell.dart';
@@ -110,7 +111,7 @@ class _PlaceholderScreen extends StatelessWidget {
           children: [
             if (icon != null)
               Icon(icon, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             Text(title, style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
@@ -135,7 +136,7 @@ class _NotFoundScreen extends StatelessWidget {
               size: 56,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             Text('Page not found', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/app_radius.dart';
 import '../constants/app_spacing.dart';
 
 class AtlasCard extends StatelessWidget {
@@ -19,8 +20,9 @@ class AtlasCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: (Theme.of(context).cardTheme.shape as RoundedRectangleBorder?)
-            ?.borderRadius
-            .resolve(Directionality.of(context)),
+                ?.borderRadius
+                .resolve(Directionality.of(context)) ??
+            BorderRadius.circular(AppRadius.lg),
         child: Padding(padding: padding, child: child),
       ),
     );

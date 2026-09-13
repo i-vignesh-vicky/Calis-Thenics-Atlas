@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(Widget child) =>
-    MaterialApp(home: Scaffold(body: Padding(padding: EdgeInsets.all(16), child: child)));
+    MaterialApp(home: Scaffold(body: Padding(padding: const EdgeInsets.all(16), child: child)));
 
 void main() {
   group('AtlasInput', () {
