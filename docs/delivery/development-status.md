@@ -1,8 +1,8 @@
 # Development Status
 
-**Last updated:** 2026-08-09
-**Current week:** Week 01 complete — transitioning to Week 02
-**Current milestone:** M1 — Foundation (complete)
+**Last updated:** 2026-09-13
+**Current week:** Week 02 complete — transitioning to Week 03
+**Current milestone:** M2 — Core Features (in progress)
 
 ---
 
@@ -11,7 +11,7 @@
 | Epic | Title | Status | Stories |
 |------|-------|--------|---------|
 | epic-01 | Foundation and Project Setup | Done | STORY-001 to STORY-005C |
-| epic-02 | Design System | Todo | STORY-006 to STORY-009 |
+| epic-02 | Design System | Done | STORY-006 to STORY-009 |
 | epic-03 | Authentication | Todo | STORY-010 to STORY-014 |
 | epic-04 | Profile and Onboarding | Todo | STORY-015 to STORY-018 |
 | epic-05 | Exercise Library | Todo | STORY-019 to STORY-022 |
@@ -40,6 +40,15 @@
 | STORY-005B | Add Baseline Smoke Test | Backend HealthEndpointTests (WebApplicationFactory), Flutter app_smoke_test, make smoke target |
 | STORY-005C | Set Up Database and Migration Tooling | docker-compose.yml, AtlasDbContext, UuidV7ValueGenerator, dotnet-tools.json, InitialCreate migration |
 
+**Week 02 — epic-02-design-system** (completed 2026-09-13)
+
+| Story | Title | Notes |
+|-------|-------|-------|
+| STORY-006 | Add Design Tokens and Theme Provider | AppColors (full Material 3 dark ColorScheme, amber accent), AppSpacing/Radius/Durations tokens, full AppTheme replacing placeholder, 7 tests |
+| STORY-007 | Create Shared UI Primitives | AtlasButton (3 variants, loading), AtlasCard, AtlasInput, AtlasEmptyState, 17 tests |
+| STORY-008 | Add App Shell and Layout Containers | AtlasPageLayout standard Scaffold wrapper, 6 layout tests |
+| STORY-009 | Add Route Skeletons and Navigation State | Full MVP route map (home, workouts/:id, progress, profile, settings, /auth/*), 404 fallback, 5 nav tests |
+
 ---
 
 ## In Progress
@@ -48,17 +57,30 @@ None.
 
 ---
 
-## Upcoming (Next 2 Weeks)
+## Upcoming (Week 03)
 
-**Week 02** — Design System
-- STORY-006 · Add Design Tokens and Theme Provider
-- STORY-007 · Create Shared UI Primitives
-- STORY-008 · Add App Shell and Layout Containers
-- STORY-009 · Add Route Skeletons and Navigation State
+**Week 03** — Authentication (epic-03)
+- STORY-010 · Add JWT authentication to backend
+- STORY-011 · Add user registration endpoint
+- STORY-012 · Add login and token refresh endpoint
+- STORY-013 · Add auth guard middleware
+- STORY-014 · Build login and signup screens (Flutter)
 
 ---
 
-## Scope Decisions (Week 01)
+## Scope Decisions
+
+**Week 02**
+
+| Decision | Rationale |
+|----------|-----------|
+| Dark-first theme; light() delegates to dark() | Atlas MVP is dark-first. Light variant deferred to post-MVP when user preference data exists. |
+| Visual identity: Dark/Focused (near-black + warm amber) | Chosen from 3 options. Disciplined, athletic aesthetic suited to serious training tool. |
+| 5th nav tab is Settings (not Community) | Matches STORY-004 spec. Community tab surfaces in epic-09 if the tab is rearranged. |
+| Material 3 surface containers for elevation, not shadows | Flatter look consistent with the dark/focused identity. Fewer box shadow calculations. |
+| `abstract final class` for all token classes | Prevents instantiation; communicates intent as namespace-only utility. |
+
+**Week 01**
 
 | Decision | Rationale |
 |----------|-----------|
@@ -75,9 +97,10 @@ None.
 
 | ID | Description | Severity | Introduced |
 |----|-------------|----------|------------|
-| TD-001 | No isolated unit test for AppSettings startup validation with a missing key. The failure path is exercised only implicitly via the integration smoke test. A discrete unit test would make the contract explicit. | Low | Week 01 (STORY-002) |
-| ~~TD-002~~ | ~~CI badge in README uses `YOUR_ORG` placeholder.~~ **Resolved (2026-08-09):** Replaced with `i-vignesh-vicky`. Badge URL: `https://github.com/i-vignesh-vicky/Calis-Thenics-Atlas/actions/workflows/ci.yml` | ~~Low~~ Closed | Week 01 (STORY-005A) |
-| ~~TD-003~~ | ~~Flutter platform directories (android/, ios/) are not committed.~~ **Resolved (2026-08-09):** Generated via `flutter create --org com.calisthenicsatlas --project-name atlas --platforms android,ios .` and committed. Platform build artifacts remain gitignored by `android/.gitignore` and `ios/.gitignore`. | ~~Low~~ Closed | Week 01 (STORY-004) |
+| TD-001 | No isolated unit test for AppSettings startup validation with a missing key. The failure path is exercised only implicitly via the integration smoke test. | Low | Week 01 (STORY-002) |
+| ~~TD-002~~ | ~~CI badge placeholder.~~ **Resolved (2026-08-09)** | ~~Low~~ Closed | — |
+| ~~TD-003~~ | ~~Flutter platform dirs not committed.~~ **Resolved (2026-08-09)** | ~~Low~~ Closed | — |
+| TD-004 | flutter analyze and flutter test cannot run in the office laptop shell session (flutter not on PATH in hook-restricted environment). CI verifies instead. | Low | Week 02 (STORY-006) |
 
 ---
 
@@ -85,10 +108,12 @@ None.
 
 | # | Description | Severity | Owner |
 |---|-------------|----------|-------|
-| OQ-01 | FR-SKILL-001 and FR-SKILL-003 (skill tracking) are not fully covered by existing stories. See epic-08 open question. Story may need to be added. | Medium | TBD |
-| OQ-02 | ~~.NET version not pinned.~~ **Resolved:** .NET 10 LTS. Documented in ARCHITECTURE.md and backend.md. | ~~High~~ Closed | — |
-| OQ-03 | ~~CI platform unconfirmed.~~ **Resolved:** GitHub Actions. Documented in ARCHITECTURE.md. | ~~Low~~ Closed | — |
-| OQ-04 | ~~Flutter router not chosen.~~ **Resolved:** go_router. Documented in ARCHITECTURE.md and frontend.md. | ~~Low~~ Closed | — |
+| OQ-01 | FR-SKILL-001 and FR-SKILL-003 (skill tracking) are not fully covered by existing stories. See epic-08 open question. | Medium | TBD |
+| ~~OQ-02~~ | .NET version resolved: .NET 10 LTS. | ~~High~~ Closed | — |
+| ~~OQ-03~~ | CI platform resolved: GitHub Actions. | ~~Low~~ Closed | — |
+| ~~OQ-04~~ | Flutter router resolved: go_router. | ~~Low~~ Closed | — |
+| OQ-05 | Custom typeface for stronger identity post-MVP (candidates: Inter, DM Sans). | Low | TBD |
+| OQ-06 | Light theme variant deferred — revisit post-MVP when user preference data informs the decision. | Low | TBD |
 
 ---
 
@@ -103,7 +128,7 @@ None.
 | Milestone | Target Week | Description | Status |
 |-----------|-------------|-------------|--------|
 | M1 | Week 01 | Repo builds, CI green, backend health endpoint live locally, frontend shell renders, DB migrations apply | Done |
-| M2 | Week 06 | Core features (auth, profile, exercises, routines) complete | Todo |
+| M2 | Week 06 | Core features (auth, profile, exercises, routines) complete | In Progress |
 | M3 | Week 10 | Full feature set complete (workout, history, progress, notifications) | Todo |
 | M4 | Week 14 | Beta build live with smoke tests passing | Todo |
 | M5 | Week 18 | Production release live and stable | Todo |
