@@ -4,9 +4,6 @@ import '../core/theme/app_theme.dart';
 import 'router.dart';
 
 /// Root application widget.
-///
-/// Accepts a [theme] so the design system can be swapped in Week 02
-/// without structural changes to this file.
 class App extends StatelessWidget {
   const App({super.key, ThemeData? theme}) : _theme = theme;
 
@@ -16,7 +13,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Atlas',
-      theme: _theme ?? AppTheme.light(),
+      theme: _theme ?? AppTheme.dark(),
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
     );
