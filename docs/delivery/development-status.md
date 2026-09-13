@@ -1,7 +1,7 @@
 # Development Status
 
 **Last updated:** 2026-09-13
-**Current week:** Week 02 complete — transitioning to Week 03
+**Current week:** Week 03 complete — transitioning to Week 04
 **Current milestone:** M2 — Core Features (in progress)
 
 ---
@@ -12,7 +12,7 @@
 |------|-------|--------|---------|
 | epic-01 | Foundation and Project Setup | Done | STORY-001 to STORY-005C |
 | epic-02 | Design System | Done | STORY-006 to STORY-009 |
-| epic-03 | Authentication | Todo | STORY-010 to STORY-014 |
+| epic-03 | Authentication | Done | STORY-010 to STORY-014 |
 | epic-04 | Profile and Onboarding | Todo | STORY-015 to STORY-018 |
 | epic-05 | Exercise Library | Todo | STORY-019 to STORY-022 |
 | epic-06 | Routine Builder | Todo | STORY-023 to STORY-026A |
@@ -49,6 +49,16 @@
 | STORY-008 | Add App Shell and Layout Containers | AtlasPageLayout standard Scaffold wrapper, 6 layout tests |
 | STORY-009 | Add Route Skeletons and Navigation State | Full MVP route map (home, workouts/:id, progress, profile, settings, /auth/*), 404 fallback, 5 nav tests |
 
+**Week 03 — epic-03-authentication** (completed 2026-09-13)
+
+| Story | Title | Notes |
+|-------|-------|-------|
+| STORY-010 | Auth database schema | User + RefreshToken entities, UUID v7 PKs, EF Core migration AddAuthSchema, entity configs with snake_case naming |
+| STORY-011 | Auth API endpoints | POST /api/v1/auth/register, /login, /refresh, /logout — minimal API, GlobalExceptionHandler for ProblemDetails |
+| STORY-012 | JWT auth middleware | 15-min access token (JWT), 7-day rotating refresh token (64-byte random, stored in DB); lazy IConfigureOptions<JwtBearerOptions> pattern for test compatibility |
+| STORY-013 | Flutter auth screens | AuthService (http), TokenStorage (flutter_secure_storage), AuthNotifier (ChangeNotifier), LoginScreen, SignupScreen, go_router redirect guard |
+| STORY-014 | Auth regression tests | 14 integration tests (RegisterTests×3, LoginTests×4, RefreshTests×3, LogoutTests×3) using WebApplicationFactory + InMemory; all pass |
+
 ---
 
 ## In Progress
@@ -57,18 +67,26 @@ None.
 
 ---
 
-## Upcoming (Week 03)
+## Upcoming (Week 04)
 
-**Week 03** — Authentication (epic-03)
-- STORY-010 · Add JWT authentication to backend
-- STORY-011 · Add user registration endpoint
-- STORY-012 · Add login and token refresh endpoint
-- STORY-013 · Add auth guard middleware
-- STORY-014 · Build login and signup screens (Flutter)
+**Week 04** — Profile and Onboarding (epic-04)
+- STORY-015 · User profile entity and API (GET/PATCH /api/v1/profile)
+- STORY-016 · Onboarding flow (goals, experience level, available equipment)
+- STORY-017 · Profile screen (Flutter)
+- STORY-018 · Profile integration tests
 
 ---
 
 ## Scope Decisions
+
+**Week 03**
+
+| Decision | Rationale |
+|----------|-----------|
+| Short-lived access token (15 min) + 7-day rotating refresh token | Balances security (short access window) with UX (no frequent re-login). Refresh tokens rotate on each use to limit replay attack window. |
+| Lazy IConfigureOptions<JwtBearerOptions> for JWT bearer config | Reading JWT config via IOptions after Build() ensures WebApplicationFactory ConfigureAppConfiguration callbacks are applied before values are read. |
+| Removed Serilog bootstrap logger (Log.Logger = CreateBootstrapLogger) | The global static bootstrap logger is unsafe when multiple WebApplicationFactory instances build in parallel during tests (ReloadableLogger.Freeze() throws on second call). Non-bootstrap UseSerilog is equivalent for MVP. |
+| flutter_secure_storage for token storage | Keychain/Keystore-backed; appropriate for JWT tokens on mobile. flutter_secure_storage v9 used. |
 
 **Week 02**
 
@@ -101,6 +119,7 @@ None.
 | ~~TD-002~~ | ~~CI badge placeholder.~~ **Resolved (2026-08-09)** | ~~Low~~ Closed | — |
 | ~~TD-003~~ | ~~Flutter platform dirs not committed.~~ **Resolved (2026-08-09)** | ~~Low~~ Closed | — |
 | TD-004 | flutter analyze and flutter test cannot run in the office laptop shell session (flutter not on PATH in hook-restricted environment). CI verifies instead. | Low | Week 02 (STORY-006) |
+| TD-005 | appsettings.Development.json does not contain App:JwtSecret/JwtIssuer/JwtAudience; local `dotnet run` requires manual env vars or user-secrets setup. Add a note to README. | Low | Week 03 (STORY-012) |
 
 ---
 
