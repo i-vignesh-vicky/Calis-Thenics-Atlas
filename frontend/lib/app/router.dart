@@ -3,98 +3,103 @@ import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_spacing.dart';
 import '../core/widgets/atlas_page_layout.dart';
+import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/signup_screen.dart';
+import '../features/auth/services/auth_notifier.dart';
+import '../features/auth/services/auth_service.dart';
 import '../features/home/screens/home_screen.dart';
 import 'shell.dart';
 
 /// Central route configuration for the application.
 ///
-/// All routes are declared here. Feature modules must not define their own
-/// top-level routes; they add sub-routes beneath their shell branch.
-///
 /// Route ownership:
 ///   /home            — Home tab (dashboard, quick-start)
-///   /workouts        — Workouts tab (exercise library, routine list, execution)
+///   /workouts        — Workouts tab
 ///   /workouts/:id    — Workout detail / execution
-///   /progress        — Progress tab (timeline, skills, milestones)
-///   /profile         — Profile tab (user info, goals)
-///   /settings        — Settings tab (preferences, account)
+///   /progress        — Progress tab
+///   /profile         — Profile tab
+///   /settings        — Settings tab
 ///   /auth/login      — Auth flow (outside shell)
 ///   /auth/signup     — Auth flow (outside shell)
-final GoRouter appRouter = GoRouter(
-  initialLocation: '/home',
-  errorBuilder: (context, state) => const _NotFoundScreen(),
-  routes: [
-    // Auth flow — outside the main shell (no bottom nav)
-    GoRoute(
-      path: '/auth/login',
-      name: 'auth-login',
-      builder: (context, state) =>
-          const _PlaceholderScreen(title: 'Login', icon: Icons.lock_outline),
-    ),
-    GoRoute(
-      path: '/auth/signup',
-      name: 'auth-signup',
-      builder: (context, state) =>
-          const _PlaceholderScreen(title: 'Sign Up', icon: Icons.person_add_outlined),
-    ),
+GoRouter createRouter(AuthNotifier authNotifier, AuthService authService) {
+  return GoRouter(
+    initialLocation: '/home',
+    refreshListenable: authNotifier,
+    redirect: (context, state) {
+      final isAuth = authNotifier.isAuthenticated;
+      final isAuthRoute = state.matchedLocation.startsWith('/auth');
 
-    // Main shell — persistent bottom nav
-    ShellRoute(
-      builder: (context, state, child) => MainShell(child: child),
-      routes: [
-        GoRoute(
-          path: '/home',
-          name: 'home',
-          builder: (context, state) => const HomeScreen(),
+      if (!isAuth && !isAuthRoute) return '/auth/login';
+      if (isAuth && isAuthRoute) return '/home';
+      return null;
+    },
+    errorBuilder: (context, state) => const _NotFoundScreen(),
+    routes: [
+      GoRoute(
+        path: '/auth/login',
+        name: 'auth-login',
+        builder: (context, state) => LoginScreen(
+          authService: authService,
+          authNotifier: authNotifier,
         ),
+      ),
+      GoRoute(
+        path: '/auth/signup',
+        name: 'auth-signup',
+        builder: (context, state) => SignupScreen(
+          authService: authService,
+          authNotifier: authNotifier,
+        ),
+      ),
 
-        // Workouts tab
-        GoRoute(
-          path: '/workouts',
-          name: 'workouts',
-          builder: (context, state) =>
-              const _PlaceholderScreen(title: 'Workouts', icon: Icons.fitness_center_outlined),
-          routes: [
-            GoRoute(
-              path: ':id',
-              name: 'workout-detail',
-              builder: (context, state) => _PlaceholderScreen(
-                title: 'Workout ${state.pathParameters['id']}',
-                icon: Icons.play_circle_outline,
+      ShellRoute(
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/home',
+            name: 'home',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: '/workouts',
+            name: 'workouts',
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Workouts', icon: Icons.fitness_center_outlined),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: 'workout-detail',
+                builder: (context, state) => _PlaceholderScreen(
+                  title: 'Workout ${state.pathParameters['id']}',
+                  icon: Icons.play_circle_outline,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          GoRoute(
+            path: '/progress',
+            name: 'progress',
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Progress', icon: Icons.bar_chart_outlined),
+          ),
+          GoRoute(
+            path: '/profile',
+            name: 'profile',
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Profile', icon: Icons.person_outline),
+          ),
+          GoRoute(
+            path: '/settings',
+            name: 'settings',
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Settings', icon: Icons.settings_outlined),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
-        // Progress tab
-        GoRoute(
-          path: '/progress',
-          name: 'progress',
-          builder: (context, state) =>
-              const _PlaceholderScreen(title: 'Progress', icon: Icons.bar_chart_outlined),
-        ),
-
-        // Profile tab
-        GoRoute(
-          path: '/profile',
-          name: 'profile',
-          builder: (context, state) =>
-              const _PlaceholderScreen(title: 'Profile', icon: Icons.person_outline),
-        ),
-
-        // Settings tab
-        GoRoute(
-          path: '/settings',
-          name: 'settings',
-          builder: (context, state) =>
-              const _PlaceholderScreen(title: 'Settings', icon: Icons.settings_outlined),
-        ),
-      ],
-    ),
-  ],
-);
-
-/// Generic placeholder used until a feature screen is implemented.
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen({required this.title, this.icon});
 
@@ -120,7 +125,6 @@ class _PlaceholderScreen extends StatelessWidget {
   }
 }
 
-/// Shown when navigation reaches an unknown route.
 class _NotFoundScreen extends StatelessWidget {
   const _NotFoundScreen();
 

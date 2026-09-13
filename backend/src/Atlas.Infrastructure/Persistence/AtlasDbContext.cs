@@ -1,3 +1,4 @@
+using Atlas.Domain.Identity;
 using Microsoft.EntityFrameworkCore;
 using UUIDNext;
 
@@ -6,6 +7,9 @@ namespace Atlas.Infrastructure.Persistence;
 public sealed class AtlasDbContext : DbContext
 {
     public AtlasDbContext(DbContextOptions<AtlasDbContext> options) : base(options) { }
+
+    public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
