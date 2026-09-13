@@ -75,7 +75,7 @@ class AuthService {
   Future<void> logout() async {
     final refreshToken = await storage.getRefreshToken();
     if (refreshToken != null) {
-      await http
+      http
           .post(
             Uri.parse('$baseUrl/api/v1/auth/logout'),
             headers: {'Content-Type': 'application/json'},

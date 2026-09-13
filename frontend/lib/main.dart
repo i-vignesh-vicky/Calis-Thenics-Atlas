@@ -18,7 +18,7 @@ void main() async {
   const storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
-  final tokenStorage = TokenStorage(storage);
+  const tokenStorage = TokenStorage(storage);
   final authService = AuthService(storage: tokenStorage, baseUrl: _apiBaseUrl);
   final authNotifier = AuthNotifier(authService);
   await authNotifier.initialize();
