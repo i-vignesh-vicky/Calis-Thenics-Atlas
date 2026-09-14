@@ -48,45 +48,178 @@ and stay motivated through personalized guidance.
 
 ## Local setup
 
+### Backend: Docker + PostgreSQL
+
 ```bash
 # 1. Clone
 git clone <repo-url>
 cd Calis-Thenics-Atlas
 
-# 2. Copy the environment file and fill in local values
-cp .env.example .env
-# Edit .env — all keys marked Required must be set before the app starts.
-# The defaults in .env.example work for local development as-is.
-
-# 3. Install dependencies
-make install
-
-# 4. Start local database
+# 2. Start the local PostgreSQL container
 make db-up
+# or: docker compose up -d postgres
 
-# 5. Run the backend
-cd backend && dotnet run --project src/Atlas.Api
+# 3. Verify the Postgres container is healthy
+docker compose ps
 
-# 6. Run the frontend
+# 4. Apply EF Core migrations
+cd backend
+
+dotnet tool restore
+
+dotnet ef database update \
+  --project src/Atlas.Infrastructure \
+  --startup-project src/Atlas.Api
+
+# 5. Start the API
+
+dotnet run --project src/Atlas.Api
+```
+
+### Local PostgreSQL configuration
+
+The backend is configured to connect with the following values by default:
+
+- Host: `localhost`
+- Port: `5432`
+- Database: `atlas`
+- Username: `atlas`
+- Password: `atlas_local`
+
+This matches the service defined in [docker-compose.yml](docker-compose.yml) and the connection string in [backend/src/Atlas.Api/appsettings.Development.json](backend/src/Atlas.Api/appsettings.Development.json):
+
+```text
+Host=localhost;Port=5432;Database=atlas;Username=atlas;Password=atlas_local
+```
+
+To connect in pgAdmin, create a new server with:
+
+- Name: `Calis-Thenics-Atlas Local`
+- Host: `localhost`
+- Port: `5432`
+- Maintenance database: `atlas`
+- Username: `atlas`
+- Password: `atlas_local`
+
+### Runtime URL and port
+
+The API’s default launch configuration is set in [backend/src/Atlas.Api/Properties/launchSettings.json](backend/src/Atlas.Api/Properties/launchSettings.json):
+
+- HTTP: `http://localhost:5028`
+- HTTPS: `https://localhost:7276`
+
+The health endpoint is:
+
+```text
+http://localhost:5028/api/v1/health
+```
+
+If you want to run the app on a different port, set `ASPNETCORE_URLS` before starting the app, for example:
+
+```bash
+ASPNETCORE_URLS=http://localhost:5000 dotnet run --project src/Atlas.Api
+```
+
+> Note: on macOS, port `5000` can be occupied by Apple AirPlay/AirTunes. If you see `403 Forbidden` on `localhost:5000`, that is usually not the Atlas API responding.
+
+### Environment variables and configuration keys
+
+The app binds JWT settings from the `App` section and the PostgreSQL connection string from `ConnectionStrings:AtlasDb`.
+
+The current local values are provided in [backend/src/Atlas.Api/appsettings.Development.json](backend/src/Atlas.Api/appsettings.Development.json), but they can also be supplied as shell environment variables before running the app.
+
+Example shell variables:
+
+```bash
+export ConnectionStrings__AtlasDb="Host=localhost;Port=5432;Database=atlas;Username=atlas;Password=atlas_local"
+export App__JwtSecret="change-me-local-only-do-not-use-in-production-32+"
+export App__JwtIssuer="atlas-local"
+export App__JwtAudience="atlas-app"
+export ASPNETCORE_ENVIRONMENT="Development"
+```
+
+If you use a `.env` file, source it before running the app because `.NET` does not automatically load a `.env` file by itself.
+
+```bash
+set -a
+source .env
+set +a
+```
+
+### Frontend setup
+
+```bash
+cd frontend && flutter pub get
 cd frontend && flutter run
 ```
 
-### Environment keys
+For Android emulator debugging, the API base URL is often set as:
 
-| Key | Required | Description |
-|-----|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `JWT_SECRET` | Yes | Token signing secret — any string locally |
-| `JWT_ISSUER` | Yes | Token issuer identifier |
-| `JWT_AUDIENCE` | Yes | Token audience identifier |
-| `ASPNETCORE_ENVIRONMENT` | Yes | Must be `Development` locally |
-| `ASPNETCORE_URLS` | Yes | Backend listen URL (`http://localhost:5000`) |
-| `API_BASE_URL` | Yes | Frontend API base (`http://localhost:5000/api/v1`) |
-| `FIREBASE_SERVER_KEY` | No | Push notifications — required from Week 09 |
-| `APNS_KEY_ID` | No | Push notifications — required from Week 09 |
-| `APNS_TEAM_ID` | No | Push notifications — required from Week 09 |
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5028/api/v1
+```
 
-The app throws a clear startup error if any required key is absent. Optional keys enable future features; the app starts without them.
+If you want to run the frontend against the same port as the ASP.NET app, use the port the API is actually listening on.
+
+### Android Studio and Xcode setup
+
+For this project, open the existing Flutter app folder instead of creating a new project in the IDEs.
+
+#### Android Studio
+
+1. Open Android Studio.
+2. Choose **Open**.
+3. Select the existing folder:
+   ```bash
+   /Users/Ken/Source/Repos/Calis-Thenics-Atlas/frontend
+   ```
+4. Let Android Studio index the project.
+5. Open **Device Manager**.
+6. Create an Android emulator if none exists.
+7. Start the emulator and select it in the toolbar.
+8. Run the app from Android Studio or with:
+   ```bash
+   cd frontend
+   flutter run -d "<emulator-name>"
+   ```
+
+#### Xcode / iPhone simulator
+
+1. Open Xcode.
+2. Choose **Open** and select:
+   ```bash
+   /Users/Ken/Source/Repos/Calis-Thenics-Atlas/frontend/ios
+   ```
+3. If needed, open the `.xcworkspace` file.
+4. Start the iPhone simulator in Xcode or via the Simulator app.
+5. Select the simulator as the target device.
+6. Run the app from Xcode, or from terminal:
+   ```bash
+   cd frontend
+   flutter run -d "iPhone 17"
+   ```
+
+#### CocoaPods for iOS
+
+Flutter plugins for iOS require CocoaPods.
+
+Install CocoaPods with Homebrew:
+
+```bash
+brew install cocoapods
+```
+
+Then install iOS dependencies:
+
+```bash
+cd frontend/ios
+pod install
+cd ..
+```
+
+If the app fails with `CocoaPods not installed` or `Error launching application`, install CocoaPods first and re-run the app.
+
+> Note: on macOS, port `5000` can be occupied by Apple AirPlay/AirTunes, so prefer the app’s actual backend port such as `5028` when testing the app locally.
 
 ---
 
