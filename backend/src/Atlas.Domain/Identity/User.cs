@@ -6,7 +6,8 @@ public sealed class User
 
     public Guid Id { get; private set; }
     public string Email { get; private set; } = string.Empty;
-    public string PasswordHash { get; private set; } = string.Empty;
+    public string? PasswordHash { get; private set; }
+    public string? GoogleId { get; private set; }
     public string DisplayName { get; private set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
@@ -23,5 +24,23 @@ public sealed class User
             CreatedAt = now,
             UpdatedAt = now,
         };
+    }
+
+    public static User RegisterWithGoogle(string email, string displayName, string googleId, DateTimeOffset now)
+    {
+        return new User
+        {
+            Email = email.ToLowerInvariant(),
+            DisplayName = displayName,
+            GoogleId = googleId,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
+    }
+
+    public void LinkGoogle(string googleId, DateTimeOffset now)
+    {
+        GoogleId = googleId;
+        UpdatedAt = now;
     }
 }

@@ -4,113 +4,126 @@ import 'package:flutter/services.dart';
 import '../constants/app_radius.dart';
 import 'app_colors.dart';
 
-/// Atlas application theme.
-///
-/// Atlas is dark-first for MVP. [light] delegates to [dark] until a
-/// separate light variant is designed.
 abstract final class AppTheme {
   static ThemeData dark() {
-    return ThemeData(
+    const scheme = AppColors.darkScheme;
+
+    final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: AppColors.darkScheme,
+      colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.black,
+    );
+
+    return base.copyWith(
+      textTheme: _buildTextTheme(base.textTheme),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0A0A0A),
-        foregroundColor: Color(0xFFFFFFFF),
+        backgroundColor: AppColors.black,
+        foregroundColor: AppColors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        titleTextStyle: TextStyle(
+          color: AppColors.white,
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0,
+        ),
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xFF0A0A0A),
-        // 0x26 = 15% opacity of amber
-        indicatorColor: const Color(0x26F5A623),
+        backgroundColor: AppColors.black,
+        indicatorColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
         elevation: 0,
+        height: 64,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: Color(0xFFF5A623));
+            return const IconThemeData(color: AppColors.amber, size: 24);
           }
-          return const IconThemeData(color: Color(0xFF9E9E9E));
+          return const IconThemeData(color: AppColors.muted, size: 24);
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
-              color: Color(0xFFF5A623),
-              fontSize: 12,
+              color: AppColors.amber,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             );
           }
           return const TextStyle(
-            color: Color(0xFF9E9E9E),
-            fontSize: 12,
+            color: AppColors.muted,
+            fontSize: 11,
             fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
           );
         }),
       ),
       cardTheme: CardThemeData(
-        color: const Color(0xFF141414),
+        color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: const BorderSide(color: Color(0xFF2E2E2E)),
+          side: const BorderSide(color: AppColors.border),
         ),
         margin: EdgeInsets.zero,
       ),
       dividerTheme: const DividerThemeData(
-        color: Color(0xFF2E2E2E),
+        color: AppColors.border,
         thickness: 1,
         space: 1,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF1E1E1E),
+        fillColor: AppColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: Color(0xFF2E2E2E)),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: Color(0xFF2E2E2E)),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.amber, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: Color(0xFFFF453A)),
+          borderSide: const BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: Color(0xFFFF453A), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(color: Color(0xFF9E9E9E)),
+        hintStyle: const TextStyle(color: AppColors.muted),
+        labelStyle: const TextStyle(color: AppColors.subtle),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF5A623),
-          foregroundColor: const Color(0xFF1A0F00),
+          backgroundColor: AppColors.amber,
+          foregroundColor: const Color(0xFFFFFFFF),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(AppRadius.full),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           textStyle: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFFFFFFFF),
-          side: const BorderSide(color: Color(0xFF2E2E2E)),
+          foregroundColor: AppColors.white,
+          side: const BorderSide(color: AppColors.borderSubtle),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(AppRadius.full),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           textStyle: const TextStyle(
@@ -122,7 +135,7 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: const Color(0xFFF5A623),
+          foregroundColor: AppColors.amber,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
@@ -132,6 +145,115 @@ abstract final class AppTheme {
             letterSpacing: 0,
           ),
         ),
+      ),
+    );
+  }
+
+  static TextTheme _buildTextTheme(TextTheme base) {
+    return base.copyWith(
+      // Hero / display sizes — Equinox-style large bold headlines
+      displayLarge: base.displayLarge?.copyWith(
+        fontSize: 48,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -1.5,
+        color: AppColors.white,
+        height: 1.1,
+      ),
+      displayMedium: base.displayMedium?.copyWith(
+        fontSize: 36,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -1.0,
+        color: AppColors.white,
+        height: 1.15,
+      ),
+      displaySmall: base.displaySmall?.copyWith(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
+        color: AppColors.white,
+        height: 1.2,
+      ),
+      // Headlines
+      headlineLarge: base.headlineLarge?.copyWith(
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+        color: AppColors.white,
+        height: 1.25,
+      ),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+        color: AppColors.white,
+        height: 1.3,
+      ),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+        color: AppColors.white,
+        height: 1.35,
+      ),
+      // Titles
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: 17,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+        color: AppColors.white,
+      ),
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+        color: AppColors.white,
+      ),
+      titleSmall: base.titleSmall?.copyWith(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+        color: AppColors.white,
+      ),
+      // Body
+      bodyLarge: base.bodyLarge?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        color: AppColors.white,
+        height: 1.5,
+      ),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        color: AppColors.subtle,
+        height: 1.5,
+      ),
+      bodySmall: base.bodySmall?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        color: AppColors.muted,
+        height: 1.4,
+      ),
+      // Labels — uppercase spaced (Open / Equinox category labels)
+      labelLarge: base.labelLarge?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.5,
+        color: AppColors.subtle,
+      ),
+      labelMedium: base.labelMedium?.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.5,
+        color: AppColors.muted,
+      ),
+      labelSmall: base.labelSmall?.copyWith(
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.5,
+        color: AppColors.muted,
       ),
     );
   }

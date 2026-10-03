@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../core/services/token_storage.dart';
@@ -85,6 +86,33 @@ class AuthService {
           .ignore();
     }
     await storage.clearTokens();
+  }
+
+  Future<void> signInWithGoogle() async {
+    final googleSignIn = GoogleSignIn();
+    final account = await googleSignIn.signIn();
+    if (account == null) throw const AuthException('Sign-in cancelled');
+
+    final auth = await account.authentication;
+    final idToken = auth.idToken;
+    if (idToken == null) throw const AuthException('No ID token received');
+
+    final res = await http.post(
+      Uri.parse('$baseUrl/api/v1/auth/google'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'idToken': idToken}),
+    );
+
+    if (res.statusCode == 200) {
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      await storage.saveTokens(
+        accessToken: body['accessToken'] as String,
+        refreshToken: body['refreshToken'] as String,
+      );
+      return;
+    }
+
+    throw const AuthException('Google sign-in failed. Please try again.');
   }
 
   Future<bool> isAuthenticated() => storage.hasTokens();

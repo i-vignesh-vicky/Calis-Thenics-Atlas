@@ -4,6 +4,7 @@ using Atlas.Domain.Identity;
 using Atlas.Infrastructure.Persistence;
 using Atlas.Shared;
 using BCrypt.Net;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Atlas.Api.Endpoints;
@@ -18,6 +19,7 @@ internal static class AuthEndpoints
         auth.MapPost("/login", Login).AllowAnonymous();
         auth.MapPost("/refresh", Refresh).AllowAnonymous();
         auth.MapPost("/logout", Logout).AllowAnonymous();
+        auth.MapPost("/google", GoogleSignIn).AllowAnonymous();
 
         return app;
     }
@@ -56,7 +58,7 @@ internal static class AuthEndpoints
         IClock clock)
     {
         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == req.Email.ToLowerInvariant());
-        if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
+        if (user is null || user.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             return Results.Unauthorized();
 
         var now = clock.UtcNow;
@@ -98,6 +100,53 @@ internal static class AuthEndpoints
             accessToken,
             newRefreshValue,
             new UserSummary(existing.User.Id, existing.User.Email, existing.User.DisplayName)));
+    }
+
+    private static async Task<IResult> GoogleSignIn(
+        GoogleSignInRequest req,
+        AtlasDbContext db,
+        ITokenService tokens,
+        IConfiguration config,
+        IClock clock)
+    {
+        GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = [config["App:GoogleClientId"]!]
+            };
+            payload = await GoogleJsonWebSignature.ValidateAsync(req.IdToken, settings);
+        }
+        catch
+        {
+            return Results.Unauthorized();
+        }
+
+        var now = clock.UtcNow;
+        var user = await db.Users.FirstOrDefaultAsync(u => u.GoogleId == payload.Subject)
+                ?? await db.Users.FirstOrDefaultAsync(u => u.Email == payload.Email.ToLowerInvariant());
+
+        if (user is null)
+        {
+            user = User.RegisterWithGoogle(payload.Email, payload.Name ?? payload.Email, payload.Subject, now);
+            db.Users.Add(user);
+        }
+        else if (user.GoogleId is null)
+        {
+            user.LinkGoogle(payload.Subject, now);
+        }
+
+        var refreshTokenValue = tokens.GenerateRefreshToken();
+        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue, now.AddDays(30), now);
+        db.RefreshTokens.Add(refreshToken);
+        await db.SaveChangesAsync();
+
+        var accessToken = tokens.GenerateAccessToken(user);
+        return Results.Ok(new AuthResponse(
+            accessToken,
+            refreshTokenValue,
+            new UserSummary(user.Id, user.Email, user.DisplayName)));
     }
 
     private static async Task<IResult> Logout(

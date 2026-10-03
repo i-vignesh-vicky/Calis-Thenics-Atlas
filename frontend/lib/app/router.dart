@@ -2,17 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_spacing.dart';
+import '../core/services/onboarding_storage.dart';
 import '../core/widgets/atlas_page_layout.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/services/auth_notifier.dart';
 import '../features/auth/services/auth_service.dart';
 import '../features/home/screens/home_screen.dart';
+import '../features/onboarding/screens/onboarding_flow_screen.dart';
+import '../features/onboarding/screens/welcome_screen.dart';
+import '../features/onboarding/services/onboarding_service.dart';
+import '../features/profile/screens/profile_screen.dart';
+import '../features/settings/screens/settings_screen.dart';
 import 'shell.dart';
 
 /// Central route configuration for the application.
 ///
 /// Route ownership:
+///   /welcome         — Animated splash (public)
+///   /onboarding      — First-run onboarding flow (requires auth)
 ///   /home            — Home tab (dashboard, quick-start)
 ///   /workouts        — Workouts tab
 ///   /workouts/:id    — Workout detail / execution
@@ -21,20 +29,44 @@ import 'shell.dart';
 ///   /settings        — Settings tab
 ///   /auth/login      — Auth flow (outside shell)
 ///   /auth/signup     — Auth flow (outside shell)
-GoRouter createRouter(AuthNotifier authNotifier, AuthService authService) {
+GoRouter createRouter(
+  AuthNotifier authNotifier,
+  AuthService authService,
+  OnboardingStorage onboardingStorage,
+  OnboardingService onboardingService,
+) {
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/welcome',
     refreshListenable: authNotifier,
     redirect: (context, state) {
       final isAuth = authNotifier.isAuthenticated;
-      final isAuthRoute = state.matchedLocation.startsWith('/auth');
+      final loc = state.matchedLocation;
+      final isAuthRoute = loc.startsWith('/auth');
+      final isPublic = loc == '/welcome' || loc == '/onboarding';
 
-      if (!isAuth && !isAuthRoute) return '/auth/login';
+      if (!isAuth && !isAuthRoute && !isPublic) return '/auth/login';
+      // Let /welcome always play — WelcomeScreen routes to /home or /onboarding after its animation
       if (isAuth && isAuthRoute) return '/home';
       return null;
     },
     errorBuilder: (context, state) => const _NotFoundScreen(),
     routes: [
+      GoRoute(
+        path: '/welcome',
+        name: 'welcome',
+        builder: (context, state) => WelcomeScreen(
+          isAuthenticated: authNotifier.isAuthenticated,
+          onboardingStorage: onboardingStorage,
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => OnboardingFlowScreen(
+          onboardingStorage: onboardingStorage,
+          onboardingService: onboardingService,
+        ),
+      ),
       GoRoute(
         path: '/auth/login',
         name: 'auth-login',
@@ -86,13 +118,12 @@ GoRouter createRouter(AuthNotifier authNotifier, AuthService authService) {
             path: '/profile',
             name: 'profile',
             builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Profile', icon: Icons.person_outline),
+                ProfileScreen(authNotifier: authNotifier),
           ),
           GoRoute(
             path: '/settings',
             name: 'settings',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Settings', icon: Icons.settings_outlined),
+            builder: (context, state) => SettingsScreen(authNotifier: authNotifier),
           ),
         ],
       ),

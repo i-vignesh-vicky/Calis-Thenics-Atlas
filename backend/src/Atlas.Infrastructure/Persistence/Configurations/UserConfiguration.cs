@@ -25,8 +25,15 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDatabaseName("ix_users_email");
 
         builder.Property(u => u.PasswordHash)
-            .IsRequired()
             .HasMaxLength(72);
+
+        builder.Property(u => u.GoogleId)
+            .HasMaxLength(255);
+
+        builder.HasIndex(u => u.GoogleId)
+            .IsUnique()
+            .HasFilter("google_id IS NOT NULL")
+            .HasDatabaseName("ix_users_google_id");
 
         builder.Property(u => u.DisplayName)
             .IsRequired()

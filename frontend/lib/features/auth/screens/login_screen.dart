@@ -1,3 +1,5 @@
+import 'dart:math' show pi;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,6 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await widget.authService.signInWithGoogle();
+      widget.authNotifier.onLoginSuccess();
+      if (mounted) context.go('/home');
+    } on AuthException catch (e) {
+      setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   Future<void> _submit() async {
@@ -104,6 +122,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   loading: _loading,
                   fullWidth: true,
                 ),
+                const SizedBox(height: AppSpacing.lg),
+                const _OrDivider(),
+                const SizedBox(height: AppSpacing.lg),
+                _SocialButton(
+                  icon: const _GoogleIcon(),
+                  label: 'Continue with Google',
+                  onPressed: _signInWithGoogle,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -161,4 +187,104 @@ class _ErrorBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(child: Divider(color: scheme.outlineVariant)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'or',
+            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+          ),
+        ),
+        Expanded(child: Divider(color: scheme.outlineVariant)),
+      ],
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  const _SocialButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Widget icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: icon,
+        label: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          side: BorderSide(color: scheme.outline),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
+    );
+  }
+}
+
+class _GoogleIcon extends StatelessWidget {
+  const _GoogleIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(painter: _GoogleGPainter()),
+    );
+  }
+}
+
+class _GoogleGPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final sw = size.width * 0.19;
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = size.width / 2 - sw / 2;
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: r);
+    final p = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = sw
+      ..strokeCap = StrokeCap.butt;
+
+    p.color = const Color(0xFF34A853);
+    canvas.drawArc(rect, pi / 6, pi / 3, false, p);
+    p.color = const Color(0xFFFBBC05);
+    canvas.drawArc(rect, pi / 2, pi / 2, false, p);
+    p.color = const Color(0xFFEA4335);
+    canvas.drawArc(rect, pi, pi / 2, false, p);
+    p.color = const Color(0xFF4285F4);
+    canvas.drawArc(rect, 3 * pi / 2, pi / 3, false, p);
+
+    canvas.drawRect(
+      Rect.fromLTWH(cx, cy - sw * 0.45, r - sw * 0.15, sw * 0.9),
+      Paint()
+        ..color = const Color(0xFF4285F4)
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }

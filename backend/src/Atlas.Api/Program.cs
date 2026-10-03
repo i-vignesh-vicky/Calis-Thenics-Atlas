@@ -31,15 +31,17 @@ builder.Services.AddDbContext<AtlasDbContext>(options =>
         .UseNpgsql(builder.Configuration.GetConnectionString("AtlasDb"))
         .UseSnakeCaseNamingConvention());
 
-// Authentication: options resolved lazily so test ConfigureAppConfiguration runs first.
+// Register as IConfigureOptions<T> so OptionsFactory sees it in its IEnumerable<IConfigureOptions<T>>.
+// Use ConfigureNamedOptions<T> as the concrete type so the factory's name-match ("Bearer") succeeds.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();
 
 builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<AppSettings>>().Value;
-    return new ConfigureOptions<JwtBearerOptions>(options =>
+    return new ConfigureNamedOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -77,6 +79,7 @@ api.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
    .AllowAnonymous();
 
 api.MapAuthEndpoints();
+api.MapProfileEndpoints();
 
 app.Run();
 
