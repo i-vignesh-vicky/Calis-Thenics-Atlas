@@ -103,7 +103,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     const subtitleDurMs = 600.0;
     _subtitleOpacity = CurvedAnimation(
       parent: _seq,
-      curve: Interval(
+      curve: const Interval(
         subtitleStartMs / _seqDurMs,
         (subtitleStartMs + subtitleDurMs) / _seqDurMs,
         curve: Curves.easeOut,
@@ -111,7 +111,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
     _subtitleY = CurvedAnimation(
       parent: _seq,
-      curve: Interval(
+      curve: const Interval(
         subtitleStartMs / _seqDurMs,
         (subtitleStartMs + subtitleDurMs * 0.7) / _seqDurMs,
         curve: Curves.easeOutCubic,

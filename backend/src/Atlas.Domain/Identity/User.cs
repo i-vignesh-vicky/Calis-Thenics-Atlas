@@ -43,4 +43,10 @@ public sealed class User
         GoogleId = googleId;
         UpdatedAt = now;
     }
+
+    public void UpdateDisplayName(string displayName, DateTimeOffset now)
+    {
+        DisplayName = displayName;
+        UpdatedAt = now;
+    }
 }

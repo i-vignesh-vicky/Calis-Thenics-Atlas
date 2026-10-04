@@ -110,9 +110,9 @@ class HomeScreen extends StatelessWidget {
           ),
 
           // Browse by movement
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
+              padding: EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.xxl,
                 AppSpacing.lg,
@@ -135,9 +135,9 @@ class HomeScreen extends StatelessWidget {
           ),
 
           // Quick links
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
+              padding: EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.xxl,
                 AppSpacing.lg,

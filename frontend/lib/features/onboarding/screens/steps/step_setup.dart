@@ -29,7 +29,7 @@ class StepSetup extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _SectionLabel('WHERE'),
+              const _SectionLabel('WHERE'),
               const SizedBox(height: 10),
               ..._locations.map((l) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -43,7 +43,7 @@ class StepSetup extends StatelessWidget {
                     ),
                   )),
               const SizedBox(height: 24),
-              _SectionLabel('WITH WHAT'),
+              const _SectionLabel('WITH WHAT'),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,

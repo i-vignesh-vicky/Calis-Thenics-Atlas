@@ -59,6 +59,15 @@ public sealed class UserProfile
         CompletedAt = completedAt,
     };
 
+    public void UpdateBasicInfo(string firstName, string? sex, int? weightKg, int? heightCm, DateTimeOffset now)
+    {
+        FirstName = firstName;
+        Sex = sex;
+        WeightKg = weightKg;
+        HeightCm = heightCm;
+        CompletedAt = now;
+    }
+
     public void Update(
         string firstName,
         string? sex,

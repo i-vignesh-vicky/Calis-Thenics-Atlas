@@ -97,7 +97,7 @@ class _StepAboutYouState extends State<StepAboutYou> {
         children: [
           _NameField(controller: _nameCtrl),
           const SizedBox(height: 28),
-          _SectionLabel('BIOLOGICAL SEX'),
+          const _SectionLabel('BIOLOGICAL SEX'),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -119,7 +119,7 @@ class _StepAboutYouState extends State<StepAboutYou> {
             ],
           ),
           const SizedBox(height: 28),
-          _SectionLabel('WEIGHT'),
+          const _SectionLabel('WEIGHT'),
           const SizedBox(height: 10),
           _HorizontalDrumRoll(
             controller: _weightCtrl,
@@ -131,7 +131,7 @@ class _StepAboutYouState extends State<StepAboutYou> {
             onChanged: (v) => widget.notifier.setWeight(v),
           ),
           const SizedBox(height: 24),
-          _SectionLabel('HEIGHT'),
+          const _SectionLabel('HEIGHT'),
           const SizedBox(height: 10),
           _VerticalDrumRoll(
             controller: _heightCtrl,

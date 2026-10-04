@@ -28,7 +28,7 @@ class StepSchedule extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _SectionLabel('HOW OFTEN'),
+              const _SectionLabel('HOW OFTEN'),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -40,7 +40,7 @@ class StepSchedule extends StatelessWidget {
                     )).toList(),
               ),
               const SizedBox(height: 28),
-              _SectionLabel('HOW LONG'),
+              const _SectionLabel('HOW LONG'),
               const SizedBox(height: 12),
               ...SessionLength.values.map((s) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),

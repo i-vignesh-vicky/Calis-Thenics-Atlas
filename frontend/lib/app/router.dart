@@ -13,6 +13,7 @@ import '../features/onboarding/screens/onboarding_flow_screen.dart';
 import '../features/onboarding/screens/welcome_screen.dart';
 import '../features/onboarding/services/onboarding_service.dart';
 import '../features/profile/screens/profile_screen.dart';
+import '../features/profile/services/profile_notifier.dart';
 import '../features/settings/screens/settings_screen.dart';
 import 'shell.dart';
 
@@ -34,6 +35,7 @@ GoRouter createRouter(
   AuthService authService,
   OnboardingStorage onboardingStorage,
   OnboardingService onboardingService,
+  ProfileNotifier profileNotifier,
 ) {
   return GoRouter(
     initialLocation: '/welcome',
@@ -117,8 +119,10 @@ GoRouter createRouter(
           GoRoute(
             path: '/profile',
             name: 'profile',
-            builder: (context, state) =>
-                ProfileScreen(authNotifier: authNotifier),
+            builder: (context, state) => ProfileScreen(
+              authNotifier: authNotifier,
+              profileNotifier: profileNotifier,
+            ),
           ),
           GoRoute(
             path: '/settings',

@@ -72,7 +72,7 @@ class _StepBaselineState extends State<StepBaseline> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SectionLabel('BASELINE NUMBERS'),
+            const _SectionLabel('BASELINE NUMBERS'),
             const SizedBox(height: 12),
             _MetricCard(
               label: 'Pull-ups',
@@ -98,7 +98,7 @@ class _StepBaselineState extends State<StepBaseline> {
               onChanged: (v) => _setMetric('dips', v),
             ),
             const SizedBox(height: 28),
-            _SectionLabel('ANYTHING TO PROTECT'),
+            const _SectionLabel('ANYTHING TO PROTECT'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 10,

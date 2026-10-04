@@ -22,7 +22,7 @@ class StepGoals extends StatelessWidget {
       builder: (_, __) {
         final selected = notifier.data.primaryGoal;
         return StepShell(
-          headline: "Your main goal?",
+          headline: 'Your main goal?',
           subtext: 'We build your entire Atlas plan around this.',
           child: Column(
             children: [

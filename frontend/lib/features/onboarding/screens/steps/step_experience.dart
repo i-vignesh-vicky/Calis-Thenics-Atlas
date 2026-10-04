@@ -22,7 +22,7 @@ class StepExperience extends StatelessWidget {
       builder: (_, __) {
         final selected = notifier.data.experienceLevel;
         return StepShell(
-          headline: "Experience level?",
+          headline: 'Experience level?',
           subtext: 'Honest answers unlock the right starting program.',
           child: Column(
             children: [
