@@ -1,7 +1,7 @@
 # Development Status
 
-**Last updated:** 2026-09-13
-**Current week:** Week 03 complete — transitioning to Week 04
+**Last updated:** 2026-10-04
+**Current week:** Week 05 in progress
 **Current milestone:** M2 — Core Features (in progress)
 
 ---
@@ -13,7 +13,7 @@
 | epic-01 | Foundation and Project Setup | Done | STORY-001 to STORY-005C |
 | epic-02 | Design System | Done | STORY-006 to STORY-009 |
 | epic-03 | Authentication | Done | STORY-010 to STORY-014 |
-| epic-04 | Profile and Onboarding | Todo | STORY-015 to STORY-018 |
+| epic-04 | Profile and Onboarding | In Progress | STORY-015 to STORY-018 |
 | epic-05 | Exercise Library | Todo | STORY-019 to STORY-022 |
 | epic-06 | Routine Builder | Todo | STORY-023 to STORY-026A |
 | epic-07 | Workout Execution | Todo | STORY-027 to STORY-031 |
@@ -59,6 +59,25 @@
 | STORY-013 | Flutter auth screens | AuthService (http), TokenStorage (flutter_secure_storage), AuthNotifier (ChangeNotifier), LoginScreen, SignupScreen, go_router redirect guard |
 | STORY-014 | Auth regression tests | 14 integration tests (RegisterTests×3, LoginTests×4, RefreshTests×3, LogoutTests×3) using WebApplicationFactory + InMemory; all pass |
 
+**Week 04 — epic-04-onboarding** (completed 2026-10-03)
+
+| Story | Title | Notes |
+|-------|-------|-------|
+| STORY-015 | User profile entity and API | **Done.** `POST /api/v1/profile/onboarding`, `GET /api/v1/profile`, and `PATCH /api/v1/profile` all implemented. Trailing-slash route bug fixed (`""` instead of `"/"` in Minimal API group). |
+| STORY-016 | Onboarding flow (Flutter) | **Done.** 8-step flow: name → sex/body metrics → experience → goals → location/equipment → schedule/session length → baseline assessment → plan reveal; `OnboardingNotifier` (ChangeNotifier), `OnboardingService` (http.Client injectable), full multi-select chips, animated plan reveal with milestones. |
+| STORY-017 | Profile screen (Flutter) | **Done.** `ProfileService` + `ProfileNotifier` wired; real name and email rendered from API. Error banner with retry shown on load failure. Google sign-in deferred (TD-006). Stats row (workouts/streak/days/skills) still mocked. |
+| STORY-018 | Profile integration tests | **Partial.** 34 Flutter unit tests written for `OnboardingNotifier` + `OnboardingService`; all pass. Backend integration tests for profile endpoints (WebApplicationFactory-style, like STORY-014) not yet written. |
+
+**Also shipped in Week 04 (cleanup + hardening):**
+- Deleted 7 unused step/widget files (dead code from earlier iteration)
+- Removed orphaned `AssessmentResult` fields (`lSitSeconds`, `handstand`, `skipped`) from model and service
+- Fixed `StepBaseline.initState()` to restore metric and injury state on back-navigation
+- Added `Google.Apis.Auth` NuGet package and `POST /api/v1/auth/google` backend endpoint (validates Google ID token, finds-or-creates user, returns Atlas JWT pair)
+- Added `GoogleId` field to `User` domain entity; `UserProfile` entity added to domain and EF config
+- EF migrations `AddGoogleAuth` and `AddUserProfile` committed (closes TD-007)
+- Fixed 21 Flutter lint warnings (`prefer_const_constructors`, `prefer_single_quotes`, `sort_pub_dependencies`)
+- Fixed 3 failing router tests (`find.byType(NavigationDestination)` → text-based finders matching custom `_AtlasNavBar`); CI fully green
+
 ---
 
 ## In Progress
@@ -67,17 +86,31 @@ None.
 
 ---
 
-## Upcoming (Week 04)
+## Upcoming (Week 05)
 
-**Week 04** — Profile and Onboarding (epic-04)
-- STORY-015 · User profile entity and API (GET/PATCH /api/v1/profile)
-- STORY-016 · Onboarding flow (goals, experience level, available equipment)
-- STORY-017 · Profile screen (Flutter)
-- STORY-018 · Profile integration tests
+**Week 05** — Finish epic-04 remainder + start Exercise Library (epic-05)
+
+**epic-04 carry-over:**
+- STORY-018 · Backend integration tests for profile endpoints (WebApplicationFactory-style)
+
+**epic-05:**
+- STORY-019 · Exercise entity, seeding, and `GET /api/v1/exercises` (list + filter)
+- STORY-020 · Exercise detail API (`GET /api/v1/exercises/{id}`)
+- STORY-021 · Exercise library screen (Flutter) — browse, filter by muscle/equipment/difficulty
+- STORY-022 · Exercise detail screen (Flutter)
 
 ---
 
 ## Scope Decisions
+
+**Week 04**
+
+| Decision | Rationale |
+|----------|-----------|
+| Inject `http.Client` into `OnboardingService` (not use top-level `http.post`) | Enables pure unit tests without a live server. `MockClient` from `package:http/testing.dart` replaces the network layer in tests; no mockito needed. |
+| `_FakeTokenStorage` subclasses `TokenStorage` instead of using an interface | `TokenStorage` has no interface. Subclassing + overriding `getAccessToken()` avoids touching platform channels (flutter_secure_storage constructor is safe; only read/write ops invoke the channel). |
+| Google sign-in frontend OAuth credentials deferred | Requires GCP project setup, platform config files, and SHA-1 fingerprint — user action, not code. Backend endpoint is complete; frontend will wire up when credentials are ready. EF migration for `GoogleId`/`UserProfile` excluded from this MR (auto-generated, separate concern). |
+| Commit type `fix`, not `feat` | Week 04 MR is cleanup + bug fix + tests, not new user-visible functionality. Conventional commits: `fix` for correctness/cleanup, `feat` only for net-new features. |
 
 **Week 03**
 
@@ -120,6 +153,8 @@ None.
 | ~~TD-003~~ | ~~Flutter platform dirs not committed.~~ **Resolved (2026-08-09)** | ~~Low~~ Closed | — |
 | TD-004 | flutter analyze and flutter test cannot run in the office laptop shell session (flutter not on PATH in hook-restricted environment). CI verifies instead. | Low | Week 02 (STORY-006) |
 | TD-005 | appsettings.Development.json does not contain App:JwtSecret/JwtIssuer/JwtAudience; local `dotnet run` requires manual env vars or user-secrets setup. Add a note to README. | Low | Week 03 (STORY-012) |
+| TD-006 | Google sign-in frontend is a stub (SnackBar "coming soon"). Backend `/auth/google` endpoint is complete. Blocked on: GCP OAuth credentials, `GoogleService-Info.plist`, `google-services.json`, SHA-1 fingerprint registration, `Info.plist` URL scheme, `google_sign_in` Flutter package. | Medium | Week 04 (STORY-017) |
+| ~~TD-007~~ | ~~EF migrations for `GoogleId` on `User` and `UserProfile` entity are not committed.~~ **Resolved (2026-10-04)** — `AddGoogleAuth` and `AddUserProfile` migrations committed. | ~~Medium~~ Closed | — |
 
 ---
 

@@ -1,3 +1,5 @@
+import 'dart:math' show pi;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,6 +42,28 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await widget.authService.signInWithGoogle();
+      widget.authNotifier.onLoginSuccess();
+      if (mounted) context.go('/onboarding');
+    } on AuthException catch (e) {
+      setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _signInWithApple() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Apple sign-in coming soon')),
+    );
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() {
@@ -53,7 +77,7 @@ class _SignupScreenState extends State<SignupScreen> {
         displayName: _nameController.text.trim(),
       );
       widget.authNotifier.onLoginSuccess();
-      if (mounted) context.go('/home');
+      if (mounted) context.go('/onboarding');
     } on AuthException catch (e) {
       setState(() => _error = e.message);
     } finally {
@@ -127,6 +151,21 @@ class _SignupScreenState extends State<SignupScreen> {
                   loading: _loading,
                   fullWidth: true,
                 ),
+                const SizedBox(height: AppSpacing.lg),
+                const _OrDivider(),
+                const SizedBox(height: AppSpacing.lg),
+                _SocialButton(
+                  icon: const _GoogleIcon(),
+                  label: 'Continue with Google',
+                  onPressed: _signInWithGoogle,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                _SocialButton(
+                  icon: const _AppleIcon(),
+                  label: 'Continue with Apple',
+                  onPressed: _signInWithApple,
+                  dark: true,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -190,4 +229,187 @@ class _ErrorBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(child: Divider(color: scheme.outlineVariant)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'or',
+            style: TextStyle(
+              fontSize: 13,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        Expanded(child: Divider(color: scheme.outlineVariant)),
+      ],
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  const _SocialButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.dark = false,
+  });
+
+  final Widget icon;
+  final String label;
+  final VoidCallback onPressed;
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    if (dark) {
+      return SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: ElevatedButton.icon(
+          onPressed: onPressed,
+          icon: icon,
+          label: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        ),
+      );
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: icon,
+        label: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          side: BorderSide(color: scheme.outline),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
+    );
+  }
+}
+
+class _GoogleIcon extends StatelessWidget {
+  const _GoogleIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(painter: _GoogleGPainter()),
+    );
+  }
+}
+
+class _AppleIcon extends StatelessWidget {
+  const _AppleIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(painter: _AppleLogoPainter()),
+    );
+  }
+}
+
+class _GoogleGPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final sw = size.width * 0.19;
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = size.width / 2 - sw / 2;
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: r);
+    final p = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = sw
+      ..strokeCap = StrokeCap.butt;
+
+    // 300° arc with 60° gap at right (opening of the G)
+    // Clockwise from 30° (bottom of gap):
+    p.color = const Color(0xFF34A853); // Green: 30°–90°
+    canvas.drawArc(rect, pi / 6, pi / 3, false, p);
+    p.color = const Color(0xFFFBBC05); // Yellow: 90°–180°
+    canvas.drawArc(rect, pi / 2, pi / 2, false, p);
+    p.color = const Color(0xFFEA4335); // Red: 180°–270°
+    canvas.drawArc(rect, pi, pi / 2, false, p);
+    p.color = const Color(0xFF4285F4); // Blue: 270°–330°
+    canvas.drawArc(rect, 3 * pi / 2, pi / 3, false, p);
+
+    // Horizontal bar (G crossbar) in blue
+    canvas.drawRect(
+      Rect.fromLTWH(cx, cy - sw * 0.45, r - sw * 0.15, sw * 0.9),
+      Paint()
+        ..color = const Color(0xFF4285F4)
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+class _AppleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.width;
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    // Apple body
+    final body = Path()
+      ..moveTo(s * 0.50, s * 0.23)
+      ..cubicTo(s * 0.80, s * 0.23, s * 0.96, s * 0.46, s * 0.90, s * 0.71)
+      ..cubicTo(s * 0.85, s * 0.88, s * 0.74, s * 0.98, s * 0.61, s * 0.98)
+      ..cubicTo(s * 0.54, s * 0.98, s * 0.46, s * 0.98, s * 0.39, s * 0.98)
+      ..cubicTo(s * 0.26, s * 0.98, s * 0.15, s * 0.88, s * 0.10, s * 0.71)
+      ..cubicTo(s * 0.04, s * 0.46, s * 0.20, s * 0.23, s * 0.50, s * 0.23)
+      ..close();
+    canvas.drawPath(body, paint);
+
+    // Bite (black circle overlaid on the body, right side)
+    canvas.drawCircle(
+      Offset(s * 0.82, s * 0.33),
+      s * 0.22,
+      Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.fill,
+    );
+
+    // Stem
+    canvas.drawPath(
+      Path()
+        ..moveTo(s * 0.50, s * 0.23)
+        ..cubicTo(s * 0.50, s * 0.10, s * 0.60, s * 0.03, s * 0.66, s * 0.05),
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = s * 0.10
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }

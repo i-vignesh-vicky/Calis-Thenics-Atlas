@@ -49,16 +49,20 @@ void main() {
       expect(find.byType(MainShell), findsOneWidget);
     });
 
-    testWidgets('NavigationBar has five destinations', (tester) async {
+    testWidgets('NavigationBar has four destinations', (tester) async {
       await tester.pumpWidget(App(routerConfig: _testRouter()));
       await tester.pumpAndSettle();
-      expect(find.byType(NavigationDestination), findsNWidgets(5));
+      // Custom nav bar renders Text labels, not NavigationDestination widgets
+      expect(find.text('Home'), findsWidgets);
+      expect(find.text('Explore'), findsOneWidget);
+      expect(find.text('Activity'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
     });
 
     testWidgets('tapping Workouts destination navigates to workouts', (tester) async {
       await tester.pumpWidget(App(routerConfig: _testRouter()));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(NavigationDestination).at(1));
+      await tester.tap(find.text('Explore'));
       await tester.pumpAndSettle();
       expect(find.text('Workouts'), findsWidgets);
     });
@@ -66,7 +70,7 @@ void main() {
     testWidgets('tapping Progress destination navigates to progress', (tester) async {
       await tester.pumpWidget(App(routerConfig: _testRouter()));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(NavigationDestination).at(2));
+      await tester.tap(find.text('Activity'));
       await tester.pumpAndSettle();
       expect(find.text('Progress'), findsWidgets);
     });
